@@ -1,7 +1,7 @@
 package inshining.virtualstorage.metadata.controller;
 
 import inshining.virtualstorage.controller.MetaDataController;
-import inshining.virtualstorage.dto.FileUploadResponse;
+import inshining.virtualstorage.dto.MetaDataFileResponse;
 import inshining.virtualstorage.service.MetaDataService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class MetaDataControllerTest {
                 "Hello, World!".getBytes()
         );
 
-        when(metaDataService.uploadFile(file, "test")).thenReturn(new FileUploadResponse(true, "File uploaded successfully"));
+        when(metaDataService.uploadFile(file, "test")).thenReturn(new MetaDataFileResponse(true, "File uploaded successfully"));
 
         mockMvc.perform(
                 multipart("/file/upload").file(file)
@@ -58,7 +58,7 @@ public class MetaDataControllerTest {
         );
 
         // Mock the service method to return false (failed upload)
-        when(metaDataService.uploadFile(any(MultipartFile.class), eq("test"))).thenReturn(new FileUploadResponse(false, "Failed to upload file"));
+        when(metaDataService.uploadFile(any(MultipartFile.class), eq("test"))).thenReturn(new MetaDataFileResponse(false, "Failed to upload file"));
 
         mockMvc.perform(multipart("/file/upload")
                         .file(file)
