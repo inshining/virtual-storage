@@ -1,17 +1,15 @@
 package inshining.virtualstorage.controller;
 
+import inshining.virtualstorage.dto.FileUploadResponse;
 import inshining.virtualstorage.service.MetaDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/metadata")
+@RequestMapping("/file")
 public class MetaDataController {
     private final MetaDataService metaDataService;
 
@@ -20,7 +18,17 @@ public class MetaDataController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload");
         }
-        String body =  metaDataService.uploadFile(file, username);
+        FileUploadResponse response =  metaDataService.uploadFile(file, username);
+        if (response.isUploaded()){
+            return ResponseEntity.ok(response.message());
+        } else {
+            return ResponseEntity.badRequest().body(response.message());
+        }
+    }
+
+    @DeleteMapping("/")
+    public ResponseEntity<String> delete(@RequestParam("file") String filename, @RequestParam("user") String username) {
+        String body = metaDataService.deleteFile(filename, username);
         return ResponseEntity.ok(body);
     }
 }

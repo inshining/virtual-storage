@@ -1,5 +1,6 @@
 package inshining.virtualstorage.service;
 
+import inshining.virtualstorage.dto.FileUploadResponse;
 import inshining.virtualstorage.model.MetaData;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,7 @@ public class MetaDataService {
 
     private static final String UPLOAD_DIR = "upload/";
 
-    public String uploadFile(MultipartFile file, String username){
+    public FileUploadResponse uploadFile(MultipartFile file, String username){
 
         try {
             // Get the file and save it somewhere
@@ -28,11 +29,10 @@ public class MetaDataService {
             // Save metadata to database
 
         } catch (IOException e) {
-
             e.printStackTrace();
-            return "Failed to upload file: " + e.getMessage();
+            return new FileUploadResponse(false, "Failed to upload file: " + e.getMessage());
         }
-        return "File uploaded successfully: " + file.getOriginalFilename();
+        return new FileUploadResponse(true, "File uploaded successfully");
     }
 
     private MetaData initMetaData(MultipartFile file, String username){
@@ -41,5 +41,30 @@ public class MetaDataService {
         String originalFilename = file.getOriginalFilename();
         long size = file.getSize();
         return new MetaData(uuid1, username, contentType, originalFilename, size);
+    }
+
+    public String deleteFile(String filename, String username) {
+
+        // find file in meta data from database
+
+        MetaData metaData = null;
+        if (metaData == null) {
+            return "File not found";
+        }
+
+        if (! metaData.getUsername().equals(username)) {
+            return "You are not authorized to delete this file";
+        }
+
+        UUID uuid = metaData.getId();
+
+        try {
+            Path path = Paths.get(UPLOAD_DIR + uuid);
+            Files.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failed to delete file: " + e.getMessage();
+        }
+        return "File deleted successfully: " + filename;
     }
 }
