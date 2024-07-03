@@ -43,7 +43,7 @@ public class MetaDataService {
                 deleteFileFromStorage(metaData.getId());
                 return new MetaDataFileResponse(false, "Failed to upload file: MetaData is not created");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return new MetaDataFileResponse(false, "Failed to upload file: " + e.getMessage());
         }
