@@ -1,14 +1,17 @@
 package inshining.virtualstorage.service;
 
+import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.MetaDataFileResponse;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetadataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,7 +21,7 @@ import java.util.UUID;
 @Service
 public class MetaDataService {
 
-    private static final String UPLOAD_DIR = "upload/";
+    public static final String UPLOAD_DIR = "upload/";
 
     @Autowired
     private final MetadataRepository metadataRepository;
@@ -90,5 +93,27 @@ public class MetaDataService {
             return false;
         }
         return true;
+    }
+
+    public FileDownloadDTO downloadFile(String filename, String username) throws IOException {
+        // TODO: null 반환하는 것은 추후에 처리하도록 변경
+        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        if (metaData == null) {
+            return null;
+        }
+        InputStream inputStream = getFileAsInputStream(metaData.getId().toString());
+        if (inputStream == null) {
+            return null;
+        }
+        return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
+    }
+
+    private InputStream getFileAsInputStream(String storagePath) throws IOException{
+        try {
+            return Files.newInputStream(Paths.get(UPLOAD_DIR, storagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
