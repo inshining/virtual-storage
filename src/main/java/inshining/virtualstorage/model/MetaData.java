@@ -42,4 +42,8 @@ public class MetaData {
         this.originalFilename = originalFilename;
         this.size = size;
     }
+
+    public String getStoragePath() {
+        return this.id.toString() + "-" + this.originalFilename;
+    }
 }

@@ -12,38 +12,38 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class MetaDataService {
 
-    public static final String UPLOAD_DIR = "upload/";
-
     @Autowired
     private final MetadataRepository metadataRepository;
+
+    @Autowired
+    private final StorageService storageService;
 
     public MetaDataFileResponse uploadFile(MultipartFile file, String username){
 
         try {
             // Get the file and save it somewhere
-            byte[] bytes = file.getBytes();
             MetaData metaData = initMetaData(file, username);
 
-            Path path = Paths.get(UPLOAD_DIR + metaData.getId());
-            Files.write(path, bytes);
+            boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
+
+            if (isWriteFile == false){
+                return new MetaDataFileResponse(false, "Failed to upload file: File is not written");
+            }
 
             // Save metadata to database
             metadataRepository.save(metaData);
 
             Boolean isExit = metadataRepository.existsById(metaData.getId());
 
-            if (isExit == false) {
+            if (isExit == false ){
                 // 디비에 저장되지 않았다면 파일을 삭제해야함
-                deleteFileFromStorage(metaData.getId());
+                storageService.deleteFile(metaData.getStoragePath());
                 return new MetaDataFileResponse(false, "Failed to upload file: MetaData is not created");
             }
         } catch (Exception e) {
@@ -65,8 +65,14 @@ public class MetaDataService {
             return new MetaDataFileResponse(false, "You are not authorized to delete this file");
         }
 
-        UUID uuid = metaData.getId();
-        Boolean isDeleted = deleteFileFromStorage(uuid);
+        Boolean isDeleted = false;
+
+        try {
+            isDeleted = storageService.deleteFile(metaData.getStoragePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new MetaDataFileResponse(false, "Failed to delete file: " + e.getMessage());
+        }
 
         metadataRepository.delete(metaData);
 
@@ -74,6 +80,26 @@ public class MetaDataService {
             return new MetaDataFileResponse(false, "Failed to delete file");
         }
         return new MetaDataFileResponse(true, "File deleted successfully");
+    }
+
+
+    public FileDownloadDTO downloadFile(String filename, String username){
+        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        if (metaData == null) {
+            return null;
+        }
+
+        InputStream inputStream = null;
+        try {
+            inputStream = storageService.getFileAsInputStream(metaData.getStoragePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        if (inputStream == null) {
+            return null;
+        }
+        return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
     }
 
     private MetaData initMetaData(MultipartFile file, String username){
@@ -84,36 +110,4 @@ public class MetaDataService {
         return new MetaData(uuid1, username, contentType, originalFilename, size);
     }
 
-    private static Boolean deleteFileFromStorage(UUID uuid) {
-        try {
-            Path path = Paths.get(UPLOAD_DIR + uuid);
-            Files.delete(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    public FileDownloadDTO downloadFile(String filename, String username) throws IOException {
-        // TODO: null 반환하는 것은 추후에 처리하도록 변경
-        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
-        if (metaData == null) {
-            return null;
-        }
-        InputStream inputStream = getFileAsInputStream(metaData.getId().toString());
-        if (inputStream == null) {
-            return null;
-        }
-        return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
-    }
-
-    private InputStream getFileAsInputStream(String storagePath) throws IOException{
-        try {
-            return Files.newInputStream(Paths.get(UPLOAD_DIR, storagePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 }
