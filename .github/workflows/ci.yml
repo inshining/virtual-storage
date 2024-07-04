@@ -13,9 +13,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  checks: write
-  pull-requests: write
+permissions: write-all
 
 jobs:
   build:
