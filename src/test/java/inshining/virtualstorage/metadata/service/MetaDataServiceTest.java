@@ -206,15 +206,13 @@ public class MetaDataServiceTest {
     }
 
     @Test
-    void downloadFileFailFileNotFound() {
+    void downloadFileFailFileNotFound() throws IOException {
         String filename = "nonexistent.txt";
         String username = "testUser";
 
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
 
-        FileDownloadDTO downloadDTO = metaDataService.downloadFile(filename, username);
-
-        assertNull(downloadDTO);
+        assertThrows(NullPointerException.class, () -> metaDataService.downloadFile(filename, username));
     }
 
     @Test
@@ -227,9 +225,7 @@ public class MetaDataServiceTest {
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(metaData);
         when(storageService.getFileAsInputStream(metaData.getStoragePath())).thenReturn(null);
 
-        FileDownloadDTO downloadDTO = metaDataService.downloadFile(filename, username);
-
-        assertNull(downloadDTO);
+        assertThrows(NullPointerException.class, () -> metaDataService.downloadFile(filename, username));
     }
 
     @Test
@@ -242,9 +238,7 @@ public class MetaDataServiceTest {
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(metaData);
         when(storageService.getFileAsInputStream(metaData.getStoragePath())).thenThrow(new IOException("Failed to read file"));
 
-        FileDownloadDTO downloadDTO = metaDataService.downloadFile(filename, username);
-
-        assertNull(downloadDTO);
+        assertThrows(IOException.class, () -> metaDataService.downloadFile(filename, username));
     }
 
     private boolean assertEqualsInputStream(InputStream inputStream1, InputStream inputStream2) throws IOException {

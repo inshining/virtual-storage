@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,21 +84,16 @@ public class MetaDataService {
     }
 
 
-    public FileDownloadDTO downloadFile(String filename, String username){
+    public FileDownloadDTO downloadFile(String filename, String username) throws IOException, NullPointerException{
         MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
-            return null;
+            throw new NullPointerException("Failed to download file: MetaData not found");
         }
 
         InputStream inputStream = null;
-        try {
-            inputStream = storageService.getFileAsInputStream(metaData.getStoragePath());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        inputStream = storageService.getFileAsInputStream(metaData.getStoragePath());
         if (inputStream == null) {
-            return null;
+            throw new NullPointerException("Failed to download file: File not found");
         }
         return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
     }
