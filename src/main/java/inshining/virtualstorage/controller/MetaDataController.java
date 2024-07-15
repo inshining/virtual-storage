@@ -2,7 +2,7 @@ package inshining.virtualstorage.controller;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.SuccessResponse;
-import inshining.virtualstorage.service.MetaDataService;
+import inshining.virtualstorage.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -11,18 +11,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/file")
 public class MetaDataController {
-    private final MetaDataService metaDataService;
+    private final FileService fileService;
 
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file, @RequestParam("user") String username) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload");
         }
-        SuccessResponse response =  metaDataService.uploadFile(file, username);
+        SuccessResponse response;
+        try {
+            response =  fileService.uploadFile(file, username);
+        } catch (IOException e){
+            return ResponseEntity.badRequest().body("Failed to upload file: " + e.getMessage());
+        }
         if (response.isSuccess()){
             return ResponseEntity.ok(response.message());
         } else {
@@ -32,7 +39,7 @@ public class MetaDataController {
 
     @DeleteMapping("/")
     public ResponseEntity<String> delete(@RequestParam("file") String filename, @RequestParam("user") String username) {
-        SuccessResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = fileService.deleteFile(filename, username);
         if (response.isSuccess()){
             return ResponseEntity.ok(response.message());
         } else {
@@ -47,7 +54,7 @@ public class MetaDataController {
         }
         FileDownloadDTO fileDownload;
         try{
-            fileDownload = metaDataService.downloadFile(filename, username);
+            fileDownload = fileService.downloadFile(filename, username);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }

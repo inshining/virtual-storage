@@ -4,9 +4,8 @@ import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;
-import inshining.virtualstorage.repository.MetaDataRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,45 +16,32 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class MetaDataService {
-
-    private final MetaDataRepository metadataRepository;
-
+public class FileService {
+    private final FileMetaDataService fileMetaDataService;
     private final StorageService storageService;
 
-    public SuccessResponse uploadFile(MultipartFile file, String username){
+    @Transactional
+    public SuccessResponse uploadFile(MultipartFile file, String username) throws IOException {
 
-        try {
-            // Get the file and save it somewhere
-            FileMetaData metaData = initFileMetaData(file, username);
+        FileMetaData metaData = initFileMetaData(file, username);
 
-            boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
+        boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
 
-            if (!isWriteFile){
-                return new SuccessResponse(false, "Failed to upload file: File is not written");
-            }
-
-            // Save metadata to database
-            metadataRepository.save(metaData);
-
-            Boolean isExit = metadataRepository.existsById(metaData.getId());
-
-            if (!isExit){
-                // 디비에 저장되지 않았다면 파일을 삭제해야함
-                storageService.deleteFile(metaData.getStoragePath());
-                return new SuccessResponse(false, "Failed to upload file: MetaData is not created");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new SuccessResponse(false, "Failed to upload file: " + e.getMessage());
+        if (!isWriteFile){
+            return new SuccessResponse(false, "Failed to upload file: File is not written");
         }
+
+        // Save metadata to database
+        fileMetaDataService.save(metaData);
+
+
         return new SuccessResponse(true, "File uploaded successfully");
     }
 
     public SuccessResponse deleteFile(String filename, String username) {
 
         // find file in meta data from database
-        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        MetaData metaData = fileMetaDataService.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             return new SuccessResponse(false, "File not found");
         }
@@ -73,7 +59,7 @@ public class MetaDataService {
             return new SuccessResponse(false, "Failed to delete file: " + e.getMessage());
         }
 
-        metadataRepository.delete(metaData);
+        fileMetaDataService.delete(metaData);
 
         if (!isDeleted) {
             return new SuccessResponse(false, "Failed to delete file");
@@ -83,7 +69,7 @@ public class MetaDataService {
 
 
     public FileDownloadDTO downloadFile(String filename, String username) throws IOException, NullPointerException{
-        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        MetaData metaData = fileMetaDataService.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             throw new NullPointerException("Failed to download file: MetaData not found");
         }
@@ -95,6 +81,7 @@ public class MetaDataService {
         }
         return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
     }
+
 
     private FileMetaData initFileMetaData(MultipartFile file, String username){
         UUID uuid1 = UUID.randomUUID();

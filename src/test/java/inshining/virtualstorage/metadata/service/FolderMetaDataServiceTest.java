@@ -2,17 +2,23 @@ package inshining.virtualstorage.metadata.service;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
+import inshining.virtualstorage.service.FileMetaDataService;
 import inshining.virtualstorage.service.FolderMetaDataService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 public class FolderMetaDataServiceTest {
 
-    private FakeFolderMetaDataRepository folderMetaDataRepository = new FakeFolderMetaDataRepository();
+    private final FakeFolderMetaDataRepository folderMetaDataRepository = new FakeFolderMetaDataRepository();
 
-    private FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
+    private final FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
+
+    private final FileMetaDataService fileMetaDataService = new FileMetaDataService(folderMetaDataRepository);
 
     @DisplayName("폴더 생성")
     @Test
@@ -48,13 +54,25 @@ public class FolderMetaDataServiceTest {
         folderMetaDataService.createFolder("user", "folder1");
 
         // then
-        Assertions.assertThrows(DuplicateFileNameException.class, () -> {
-            folderMetaDataService.createFolder("user", "folder1");
-        });
+        Assertions.assertThrows(DuplicateFileNameException.class, () -> folderMetaDataService.createFolder("user", "folder1"));
+    }
+
+    @DisplayName("폴더 아래 여러 파일 보여주기")
+    @Test
+    void listMetadataInFolderTest(){
+        // given
+        folderMetaDataService.createFolder("user", "folder1");
+        folderMetaDataService.createFolder("user", "folder2");
+        folderMetaDataService.createFolder("user", "folder3");
+
+        // when
+        var response = folderMetaDataService.listMetadataInFolder("user", "folder1");
+
         // then
         Assertions.assertEquals(0, response.metaDataDTOS().size());
 
-
+        // 파일 생성
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100));
 
     }
 

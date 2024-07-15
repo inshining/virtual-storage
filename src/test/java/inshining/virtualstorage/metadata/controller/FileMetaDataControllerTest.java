@@ -3,7 +3,7 @@ package inshining.virtualstorage.metadata.controller;
 import inshining.virtualstorage.controller.MetaDataController;
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.SuccessResponse;
-import inshining.virtualstorage.service.MetaDataService;
+import inshining.virtualstorage.service.FileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,7 +31,8 @@ public class FileMetaDataControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private MetaDataService metaDataService;
+    private FileService fileService;
+
 
     @Test
     public void testUpload() throws Exception{
@@ -43,11 +43,11 @@ public class FileMetaDataControllerTest {
                 "Hello, World!".getBytes()
         );
 
-        when(metaDataService.uploadFile(file, "test")).thenReturn(new SuccessResponse(true, "File uploaded successfully"));
+        when(fileService.uploadFile(any(MultipartFile.class), any(String.class))).thenReturn(new SuccessResponse(true, "File uploaded successfully"));
 
         mockMvc.perform(
                 multipart("/file/upload").file(file)
-                .param("user", "test")
+                .param("user", "testuser")
                 ).andExpect(status().isOk())
                 .andExpect(content().string("File uploaded successfully"));
     }
@@ -62,7 +62,7 @@ public class FileMetaDataControllerTest {
         );
 
         // Mock the service method to return false (failed upload)
-        when(metaDataService.uploadFile(any(MultipartFile.class), eq("test"))).thenReturn(new SuccessResponse(false, "Failed to upload file"));
+        when(fileService.uploadFile(any(MultipartFile.class), any(String.class))).thenReturn(new SuccessResponse(false, "Failed to upload file"));
 
         mockMvc.perform(multipart("/file/upload")
                         .file(file)
@@ -89,7 +89,7 @@ public class FileMetaDataControllerTest {
 
     @Test
     void testDeleteSuccess() throws Exception {
-        when(metaDataService.deleteFile("hello.txt", "test"))
+        when(fileService.deleteFile("hello.txt", "test"))
                 .thenReturn(new SuccessResponse(true, "File deleted successfully"));
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
                         .param("file", "hello.txt")
@@ -100,7 +100,7 @@ public class FileMetaDataControllerTest {
 
     @Test
     void testDeleteFailNotFound() throws Exception {
-        when(metaDataService.deleteFile("hello.txt", "test"))
+        when(fileService.deleteFile("hello.txt", "test"))
                 .thenReturn(new SuccessResponse(false, "File not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
@@ -111,7 +111,7 @@ public class FileMetaDataControllerTest {
     }
     @Test
     void testDeleteFailNoAuthorized() throws Exception {
-        when(metaDataService.deleteFile("hello.txt", "test"))
+        when(fileService.deleteFile("hello.txt", "test"))
                 .thenReturn(new SuccessResponse(false, "You are not authorized to delete this file"));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
@@ -123,7 +123,7 @@ public class FileMetaDataControllerTest {
 
     @Test
     void testDownloadSuccess() throws Exception{
-        when(metaDataService.downloadFile("hello.txt", "test"))
+        when(fileService.downloadFile("hello.txt", "test"))
                 .thenReturn(new FileDownloadDTO(new ByteArrayInputStream("Hello, World!".getBytes()), "hello.txt", MediaType.TEXT_PLAIN, 13));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/file/download")

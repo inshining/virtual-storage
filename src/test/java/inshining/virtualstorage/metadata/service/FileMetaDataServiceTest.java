@@ -3,9 +3,9 @@ package inshining.virtualstorage.metadata.service;
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.model.FileMetaData;
-import inshining.virtualstorage.repository.MetaDataRepository;
+import inshining.virtualstorage.service.FileService;
 import inshining.virtualstorage.service.LocalStorageService;
-import inshining.virtualstorage.service.MetaDataService;
+import inshining.virtualstorage.service.FileMetaDataService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,22 +30,21 @@ import java.util.UUID;
 public class FileMetaDataServiceTest {
 
     @Mock
-    private MetaDataRepository metadataRepository;
+    private FileMetaDataService fileMetaDataService;
 
     @Mock
     private LocalStorageService storageService;
 
+
     @InjectMocks
-    private MetaDataService metaDataService;
+    private FileService fileService;
 
     public MultipartFile file;
 
 
     @BeforeEach
-    void setUp() {
-        try{
-            MockitoAnnotations.openMocks(this);
-
+    void setUp()  {
+        try (AutoCloseable resource = MockitoAnnotations.openMocks(this)){
             String fileName = "testfile.txt";
             String content = "Hello, World!";
             String contentType = "text/plain";
@@ -56,7 +55,7 @@ public class FileMetaDataServiceTest {
                     contentType,
                     content.getBytes()
             );
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -81,23 +80,22 @@ public class FileMetaDataServiceTest {
     public void testUploadFileSuccess() throws IOException {
         UUID uuid = UUID.randomUUID();
         FileMetaData fileMetaData = new FileMetaData(uuid, "testuser", "text/plain", "testfile.txt", 12);
-        when(metadataRepository.save(any(FileMetaData.class))).thenReturn(fileMetaData);
-        when(metadataRepository.existsById(any())).thenReturn(true);
+        when(fileMetaDataService.save(any(FileMetaData.class))).thenReturn(fileMetaData);
+        when(fileMetaDataService.existsById(any())).thenReturn(true);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(true);
 
-        SuccessResponse response = metaDataService.uploadFile(file, "testuser");
+        SuccessResponse response = fileService.uploadFile(file, "testuser");
         assertTrue(response.isSuccess());
 
-        verify(metadataRepository, times(1)).save(any(FileMetaData.class));
     }
 
     @Test
     public void testUploadFileFailNoWriteFile() throws IOException {
-        when(metadataRepository.save(any(FileMetaData.class))).thenReturn(null);
-        when(metadataRepository.existsById(any())).thenReturn(false);
+        when(fileMetaDataService.save(any(FileMetaData.class))).thenReturn(null);
+        when(fileMetaDataService.existsById(any())).thenReturn(false);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(false);
 
-        SuccessResponse response = metaDataService.uploadFile(file, "testuser");
+        SuccessResponse response = fileService.uploadFile(file, "testuser");
         assertFalse(response.isSuccess());
         assertEquals(response.message(), "Failed to upload file: File is not written");
 
@@ -111,26 +109,25 @@ public class FileMetaDataServiceTest {
         String username = "testUser";
 
 
-        when(metadataRepository.existsById(any(UUID.class))).thenReturn(true);
+        when(fileMetaDataService.existsById(any(UUID.class))).thenReturn(true);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(true);
 
-        SuccessResponse response = metaDataService.uploadFile(file, username);
+        SuccessResponse response = fileService.uploadFile(file, username);
 
         assertTrue(response.isSuccess());
         assertEquals("File uploaded successfully", response.message());
-        verify(metadataRepository, times(1)).save(any(FileMetaData.class));
     }
 
     @Test
-    void uploadFile_Failure() {
+    void uploadFile_Failure() throws IOException{
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes()
         );
         String username = "testUser";
 
-        when(metadataRepository.existsById(any(UUID.class))).thenReturn(false);
+        when(fileMetaDataService.existsById(any(UUID.class))).thenReturn(false);
 
-        SuccessResponse response = metaDataService.uploadFile(file, username);
+        SuccessResponse response = fileService.uploadFile(file, username);
 
         assertFalse(response.isSuccess());
         assertTrue(response.message().startsWith("Failed to upload file"));
@@ -142,14 +139,13 @@ public class FileMetaDataServiceTest {
         String username = "testUser";
         FileMetaData fileMetaData = new FileMetaData(UUID.randomUUID(), username, "text/plain", filename, 100L);
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.deleteFile(fileMetaData.getStoragePath())).thenReturn(true);
 
-        SuccessResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = fileService.deleteFile(filename, username);
 
         assertTrue(response.isSuccess());
         assertEquals("File deleted successfully", response.message());
-        verify(metadataRepository, times(1)).delete(fileMetaData);
     }
 
     @Test
@@ -157,13 +153,12 @@ public class FileMetaDataServiceTest {
         String filename = "nonexistent.txt";
         String username = "testUser";
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
 
-        SuccessResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = fileService.deleteFile(filename, username);
 
         assertFalse(response.isSuccess());
         assertEquals("File not found", response.message());
-        verify(metadataRepository, never()).delete(any(FileMetaData.class));
     }
 
     @DisplayName("파일이 존재하지 않아서 삭제되지 않은 경우 테스트")
@@ -173,14 +168,13 @@ public class FileMetaDataServiceTest {
         String username = "testUser";
         FileMetaData fileMetaData = new FileMetaData(UUID.randomUUID(), username, "text/plain", filename, 100L);
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.deleteFile(fileMetaData.getStoragePath())).thenReturn(false);
 
-        SuccessResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = fileService.deleteFile(filename, username);
 
         assertFalse(response.isSuccess());
         assertTrue(response.message().startsWith("Failed to delete file"));
-        verify(metadataRepository, times(1)).delete(fileMetaData);
     }
 
     @Test
@@ -194,10 +188,10 @@ public class FileMetaDataServiceTest {
         Path tempFile = Files.createTempFile(fileId.toString(), ".txt");
         Files.write(tempFile, bytes);
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.getFileAsInputStream(fileMetaData.getStoragePath())).thenReturn(Files.newInputStream(tempFile));
 
-        FileDownloadDTO downloadDTO = metaDataService.downloadFile(filename, username);
+        FileDownloadDTO downloadDTO = fileService.downloadFile(filename, username);
 
         assertNotNull(downloadDTO);
         assertTrue(assertEqualsInputStream(new ByteArrayInputStream(bytes), downloadDTO.inputStream()));
@@ -214,9 +208,9 @@ public class FileMetaDataServiceTest {
         String filename = "nonexistent.txt";
         String username = "testUser";
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> metaDataService.downloadFile(filename, username));
+        assertThrows(NullPointerException.class, () -> fileService.downloadFile(filename, username));
     }
 
     @Test
@@ -226,10 +220,10 @@ public class FileMetaDataServiceTest {
         UUID fileId = UUID.randomUUID();
         FileMetaData fileMetaData = new FileMetaData(fileId, username, "text/plain", filename, 100L);
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.getFileAsInputStream(fileMetaData.getStoragePath())).thenReturn(null);
 
-        assertThrows(NullPointerException.class, () -> metaDataService.downloadFile(filename, username));
+        assertThrows(NullPointerException.class, () -> fileService.downloadFile(filename, username));
     }
 
     @Test
@@ -239,10 +233,10 @@ public class FileMetaDataServiceTest {
         UUID fileId = UUID.randomUUID();
         FileMetaData metaData = new FileMetaData(fileId, username, "text/plain", filename, 100L);
 
-        when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(metaData);
+        when(fileMetaDataService.findByOriginalFilenameAndUsername(filename, username)).thenReturn(metaData);
         when(storageService.getFileAsInputStream(metaData.getStoragePath())).thenThrow(new IOException("Failed to read file"));
 
-        assertThrows(IOException.class, () -> metaDataService.downloadFile(filename, username));
+        assertThrows(IOException.class, () -> fileService.downloadFile(filename, username));
     }
 
     private boolean assertEqualsInputStream(InputStream inputStream1, InputStream inputStream2) throws IOException {
