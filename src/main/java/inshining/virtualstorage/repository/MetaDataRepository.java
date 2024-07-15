@@ -11,5 +11,5 @@ public interface MetaDataRepository {
 
     MetaData findByOriginalFilenameAndUsername(String filename, String username);
 
-    void delete(MetaData metaData);
+    void delete(MetaData fileMetaData);
 }

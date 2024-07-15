@@ -3,6 +3,7 @@ package inshining.virtualstorage.service;
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.MetaDataFileResponse;
 import inshining.virtualstorage.model.FileMetaData;
+import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class MetaDataService {
     public MetaDataFileResponse deleteFile(String filename, String username) {
 
         // find file in meta data from database
-        FileMetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             return new MetaDataFileResponse(false, "File not found");
         }
@@ -84,7 +85,7 @@ public class MetaDataService {
 
 
     public FileDownloadDTO downloadFile(String filename, String username) throws IOException, NullPointerException{
-        FileMetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             throw new NullPointerException("Failed to download file: MetaData not found");
         }

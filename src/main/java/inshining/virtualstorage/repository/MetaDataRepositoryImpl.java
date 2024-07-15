@@ -1,5 +1,6 @@
 package inshining.virtualstorage.repository;
 
+import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
