@@ -1,7 +1,7 @@
 package inshining.virtualstorage.service;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
-import inshining.virtualstorage.dto.MetaDataFileResponse;
+import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
@@ -25,7 +25,7 @@ public class MetaDataService {
     @Autowired
     private final StorageService storageService;
 
-    public MetaDataFileResponse uploadFile(MultipartFile file, String username){
+    public SuccessResponse uploadFile(MultipartFile file, String username){
 
         try {
             // Get the file and save it somewhere
@@ -34,7 +34,7 @@ public class MetaDataService {
             boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
 
             if (!isWriteFile){
-                return new MetaDataFileResponse(false, "Failed to upload file: File is not written");
+                return new SuccessResponse(false, "Failed to upload file: File is not written");
             }
 
             // Save metadata to database
@@ -45,25 +45,25 @@ public class MetaDataService {
             if (!isExit){
                 // 디비에 저장되지 않았다면 파일을 삭제해야함
                 storageService.deleteFile(metaData.getStoragePath());
-                return new MetaDataFileResponse(false, "Failed to upload file: MetaData is not created");
+                return new SuccessResponse(false, "Failed to upload file: MetaData is not created");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new MetaDataFileResponse(false, "Failed to upload file: " + e.getMessage());
+            return new SuccessResponse(false, "Failed to upload file: " + e.getMessage());
         }
-        return new MetaDataFileResponse(true, "File uploaded successfully");
+        return new SuccessResponse(true, "File uploaded successfully");
     }
 
-    public MetaDataFileResponse deleteFile(String filename, String username) {
+    public SuccessResponse deleteFile(String filename, String username) {
 
         // find file in meta data from database
         MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
-            return new MetaDataFileResponse(false, "File not found");
+            return new SuccessResponse(false, "File not found");
         }
 
         if (! metaData.getUsername().equals(username)) {
-            return new MetaDataFileResponse(false, "You are not authorized to delete this file");
+            return new SuccessResponse(false, "You are not authorized to delete this file");
         }
 
         boolean isDeleted;
@@ -72,15 +72,15 @@ public class MetaDataService {
             isDeleted = storageService.deleteFile(metaData.getStoragePath());
         } catch (IOException e) {
             e.printStackTrace();
-            return new MetaDataFileResponse(false, "Failed to delete file: " + e.getMessage());
+            return new SuccessResponse(false, "Failed to delete file: " + e.getMessage());
         }
 
         metadataRepository.delete(metaData);
 
         if (!isDeleted) {
-            return new MetaDataFileResponse(false, "Failed to delete file");
+            return new SuccessResponse(false, "Failed to delete file");
         }
-        return new MetaDataFileResponse(true, "File deleted successfully");
+        return new SuccessResponse(true, "File deleted successfully");
     }
 
 

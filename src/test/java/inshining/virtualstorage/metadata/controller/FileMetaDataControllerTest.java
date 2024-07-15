@@ -2,7 +2,7 @@ package inshining.virtualstorage.metadata.controller;
 
 import inshining.virtualstorage.controller.MetaDataController;
 import inshining.virtualstorage.dto.FileDownloadDTO;
-import inshining.virtualstorage.dto.MetaDataFileResponse;
+import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.service.MetaDataService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class FileMetaDataControllerTest {
                 "Hello, World!".getBytes()
         );
 
-        when(metaDataService.uploadFile(file, "test")).thenReturn(new MetaDataFileResponse(true, "File uploaded successfully"));
+        when(metaDataService.uploadFile(file, "test")).thenReturn(new SuccessResponse(true, "File uploaded successfully"));
 
         mockMvc.perform(
                 multipart("/file/upload").file(file)
@@ -62,7 +62,7 @@ public class FileMetaDataControllerTest {
         );
 
         // Mock the service method to return false (failed upload)
-        when(metaDataService.uploadFile(any(MultipartFile.class), eq("test"))).thenReturn(new MetaDataFileResponse(false, "Failed to upload file"));
+        when(metaDataService.uploadFile(any(MultipartFile.class), eq("test"))).thenReturn(new SuccessResponse(false, "Failed to upload file"));
 
         mockMvc.perform(multipart("/file/upload")
                         .file(file)
@@ -90,7 +90,7 @@ public class FileMetaDataControllerTest {
     @Test
     void testDeleteSuccess() throws Exception {
         when(metaDataService.deleteFile("hello.txt", "test"))
-                .thenReturn(new MetaDataFileResponse(true, "File deleted successfully"));
+                .thenReturn(new SuccessResponse(true, "File deleted successfully"));
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
                         .param("file", "hello.txt")
                         .param("user", "test"))
@@ -101,7 +101,7 @@ public class FileMetaDataControllerTest {
     @Test
     void testDeleteFailNotFound() throws Exception {
         when(metaDataService.deleteFile("hello.txt", "test"))
-                .thenReturn(new MetaDataFileResponse(false, "File not found"));
+                .thenReturn(new SuccessResponse(false, "File not found"));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
                         .param("file", "hello.txt")
@@ -112,7 +112,7 @@ public class FileMetaDataControllerTest {
     @Test
     void testDeleteFailNoAuthorized() throws Exception {
         when(metaDataService.deleteFile("hello.txt", "test"))
-                .thenReturn(new MetaDataFileResponse(false, "You are not authorized to delete this file"));
+                .thenReturn(new SuccessResponse(false, "You are not authorized to delete this file"));
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/file/")
                         .param("file", "hello.txt")

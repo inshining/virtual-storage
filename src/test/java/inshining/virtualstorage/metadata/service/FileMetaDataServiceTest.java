@@ -1,7 +1,7 @@
 package inshining.virtualstorage.metadata.service;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
-import inshining.virtualstorage.dto.MetaDataFileResponse;
+import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import inshining.virtualstorage.service.LocalStorageService;
@@ -85,7 +85,7 @@ public class FileMetaDataServiceTest {
         when(metadataRepository.existsById(any())).thenReturn(true);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(true);
 
-        MetaDataFileResponse response = metaDataService.uploadFile(file, "testuser");
+        SuccessResponse response = metaDataService.uploadFile(file, "testuser");
         assertTrue(response.isSuccess());
 
         verify(metadataRepository, times(1)).save(any(FileMetaData.class));
@@ -97,7 +97,7 @@ public class FileMetaDataServiceTest {
         when(metadataRepository.existsById(any())).thenReturn(false);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(false);
 
-        MetaDataFileResponse response = metaDataService.uploadFile(file, "testuser");
+        SuccessResponse response = metaDataService.uploadFile(file, "testuser");
         assertFalse(response.isSuccess());
         assertEquals(response.message(), "Failed to upload file: File is not written");
 
@@ -114,7 +114,7 @@ public class FileMetaDataServiceTest {
         when(metadataRepository.existsById(any(UUID.class))).thenReturn(true);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(true);
 
-        MetaDataFileResponse response = metaDataService.uploadFile(file, username);
+        SuccessResponse response = metaDataService.uploadFile(file, username);
 
         assertTrue(response.isSuccess());
         assertEquals("File uploaded successfully", response.message());
@@ -130,7 +130,7 @@ public class FileMetaDataServiceTest {
 
         when(metadataRepository.existsById(any(UUID.class))).thenReturn(false);
 
-        MetaDataFileResponse response = metaDataService.uploadFile(file, username);
+        SuccessResponse response = metaDataService.uploadFile(file, username);
 
         assertFalse(response.isSuccess());
         assertTrue(response.message().startsWith("Failed to upload file"));
@@ -145,7 +145,7 @@ public class FileMetaDataServiceTest {
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.deleteFile(fileMetaData.getStoragePath())).thenReturn(true);
 
-        MetaDataFileResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = metaDataService.deleteFile(filename, username);
 
         assertTrue(response.isSuccess());
         assertEquals("File deleted successfully", response.message());
@@ -159,7 +159,7 @@ public class FileMetaDataServiceTest {
 
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(null);
 
-        MetaDataFileResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = metaDataService.deleteFile(filename, username);
 
         assertFalse(response.isSuccess());
         assertEquals("File not found", response.message());
@@ -176,7 +176,7 @@ public class FileMetaDataServiceTest {
         when(metadataRepository.findByOriginalFilenameAndUsername(filename, username)).thenReturn(fileMetaData);
         when(storageService.deleteFile(fileMetaData.getStoragePath())).thenReturn(false);
 
-        MetaDataFileResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = metaDataService.deleteFile(filename, username);
 
         assertFalse(response.isSuccess());
         assertTrue(response.message().startsWith("Failed to delete file"));

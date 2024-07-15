@@ -1,7 +1,7 @@
 package inshining.virtualstorage.controller;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
-import inshining.virtualstorage.dto.MetaDataFileResponse;
+import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.service.MetaDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
@@ -22,7 +22,7 @@ public class MetaDataController {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload");
         }
-        MetaDataFileResponse response =  metaDataService.uploadFile(file, username);
+        SuccessResponse response =  metaDataService.uploadFile(file, username);
         if (response.isSuccess()){
             return ResponseEntity.ok(response.message());
         } else {
@@ -32,7 +32,7 @@ public class MetaDataController {
 
     @DeleteMapping("/")
     public ResponseEntity<String> delete(@RequestParam("file") String filename, @RequestParam("user") String username) {
-        MetaDataFileResponse response = metaDataService.deleteFile(filename, username);
+        SuccessResponse response = metaDataService.deleteFile(filename, username);
         if (response.isSuccess()){
             return ResponseEntity.ok(response.message());
         } else {
@@ -45,7 +45,7 @@ public class MetaDataController {
         if (filename.isEmpty() || username.isEmpty()){
             return ResponseEntity.badRequest().body(null);
         }
-        FileDownloadDTO fileDownload = null;
+        FileDownloadDTO fileDownload;
         try{
             fileDownload = metaDataService.downloadFile(filename, username);
         } catch (Exception e) {
