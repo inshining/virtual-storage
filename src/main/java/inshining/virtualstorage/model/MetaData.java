@@ -21,7 +21,6 @@ public abstract class MetaData {
     protected String username;
     protected String contentType;
     protected String originalFilename;
-    protected String storagePath;
     protected long size;
 
     @CreationTimestamp
