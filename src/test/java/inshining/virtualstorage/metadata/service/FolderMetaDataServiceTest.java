@@ -3,6 +3,7 @@ package inshining.virtualstorage.metadata.service;
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.model.FileMetaData;
+import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.FileMetaDataService;
 import inshining.virtualstorage.service.FolderMetaDataService;
@@ -65,15 +66,19 @@ public class FolderMetaDataServiceTest {
         folderMetaDataService.createFolder("user", "folder2");
         folderMetaDataService.createFolder("user", "folder3");
 
+        FolderMetaData folderMetaData = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("folder1", "user");
         // when
         var response = folderMetaDataService.listMetadataInFolder("user", "folder1");
 
         // then
         Assertions.assertEquals(0, response.metaDataDTOS().size());
 
-        // 파일 생성
-        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100));
+        // 파일 메타 데이터 생성
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100, "folder1/", folderMetaData ));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file2",100, "folder1/", folderMetaData));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file3",100, "folder1/", folderMetaData));
 
+        Assertions.assertEquals(3, folderMetaDataService.listMetadataInFolder("user", "folder1").metaDataDTOS().size());
     }
 
     @DisplayName("서로 다른 유저일 경우 폴더 내 파일 구분")
@@ -81,13 +86,17 @@ public class FolderMetaDataServiceTest {
     void listMetadataInFolderDifferentUserTest(){
         // given
         folderMetaDataService.createFolder("user", "folder1");
-        folderMetaDataService.createFolder("user", "folder2");
-        folderMetaDataService.createFolder("user", "folder3");
+        FolderMetaData folderMetaData = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("folder1", "user");
+
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100, "folder1/", folderMetaData ));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file2",100, "folder1/", folderMetaData));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file3",100, "folder1/", folderMetaData));
+
 
         folderMetaDataService.createFolder("user2", "folder1");
-        folderMetaDataService.createFolder("user2", "folder2");
-        folderMetaDataService.createFolder("user2", "folder3");
-
+        FolderMetaData folderMetaData2 = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("folder1", "user2");
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user2",  "text/plain", "file2",100, "folder1/", folderMetaData2));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user2",  "text/plain", "file3",100, "folder1/", folderMetaData2));
         // when
         var response = folderMetaDataService.listMetadataInFolder("user", "folder1");
 
@@ -96,6 +105,6 @@ public class FolderMetaDataServiceTest {
 
         var response2 = folderMetaDataService.listMetadataInFolder("user2", "folder1");
 
-        Assertions.assertEquals(3, response2.metaDataDTOS().size());
+        Assertions.assertEquals(2, response2.metaDataDTOS().size());
     }
 }

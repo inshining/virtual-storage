@@ -22,6 +22,7 @@ public abstract class MetaData {
     protected String contentType;
     protected String originalFilename;
     protected long size;
+    protected String path = "/";
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
@@ -36,14 +37,6 @@ public abstract class MetaData {
     protected LocalDateTime updatedAt;
 
     public MetaData() {}
-
-    public MetaData(UUID id, String username, String contentType, String originalFilename, long size) {
-        this.id = id;
-        this.username = username;
-        this.contentType = contentType;
-        this.originalFilename = originalFilename;
-        this.size = size;
-    }
 
     public String getStoragePath() {
         return this.id.toString() + "-" + this.originalFilename;

@@ -24,6 +24,16 @@ public class FileMetaData extends MetaData {
         this.size = size;
     }
 
+    public FileMetaData(UUID id, String username, String contentType, String originalFilename, long size, String path, FolderMetaData parent) {
+        this.id = id;
+        this.username = username;
+        this.contentType = contentType;
+        this.originalFilename = originalFilename;
+        this.size = size;
+        this.path = path;
+        this.parent = parent;
+    }
+
     public String getStoragePath() {
         return this.id.toString() + "-" + this.originalFilename;
     }

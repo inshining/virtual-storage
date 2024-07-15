@@ -21,10 +21,7 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository{
         @Override
         public Boolean existsById(UUID id) {
                 MetaData metaData = metaDataHashMap.get(id);
-                if (metaData != null) {
-                        return true;
-                }
-                return false;
+                return metaData != null;
         }
 
         @Override
@@ -56,7 +53,7 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository{
         public List<MetaData> findAllByParent(MetaData metaData) {
                 ArrayList<MetaData> result = new ArrayList<>();
                 for (MetaData data : metaDataHashMap.values()) {
-                        if (metaData.getParent() != null && data.getParent().equals(metaData)) {
+                        if (data.getParent() != null && data.getParent().equals(metaData)) {
                                 result.add(data);
                         }
                 }
