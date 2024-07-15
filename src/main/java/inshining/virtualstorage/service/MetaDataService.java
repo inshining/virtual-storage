@@ -19,10 +19,8 @@ import java.util.UUID;
 @Service
 public class MetaDataService {
 
-    @Autowired
     private final MetaDataRepository metadataRepository;
 
-    @Autowired
     private final StorageService storageService;
 
     public SuccessResponse uploadFile(MultipartFile file, String username){
