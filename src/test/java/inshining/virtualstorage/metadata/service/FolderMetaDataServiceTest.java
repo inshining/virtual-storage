@@ -1,12 +1,18 @@
 package inshining.virtualstorage.metadata.service;
 
+import exception.DuplicateFileNameException;
+import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
+import inshining.virtualstorage.service.FolderMetaDataService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class FolderMetaDataServiceTest {
 
-    private FolderMetaDataService folderMetaDataService = new FolderMetaDataService();
+    private FakeFolderMetaDataRepository folderMetaDataRepository = new FakeFolderMetaDataRepository();
+
+    private FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
 
     @DisplayName("폴더 생성")
     @Test

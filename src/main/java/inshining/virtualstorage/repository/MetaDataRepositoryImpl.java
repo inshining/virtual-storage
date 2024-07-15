@@ -32,4 +32,9 @@ private final MetadataJpaRepository metadataJpaRepository;
     public void delete(MetaData metaData) {
         metadataJpaRepository.delete(metaData);
     }
+
+    @Override
+    public boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user) {
+        return metadataJpaRepository.existsByOriginalFilenameAndUsernameAndStorageType(folderName, user, "FOLDER");
+    }
 }

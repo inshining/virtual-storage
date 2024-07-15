@@ -11,4 +11,5 @@ public interface MetadataJpaRepository extends JpaRepository<MetaData, UUID> {
 
     MetaData findByOriginalFilenameAndUsername(String filename, String username);
 
+    boolean existsByOriginalFilenameAndUsernameAndStorageType(String folderName, String user, String storage_type);
 }

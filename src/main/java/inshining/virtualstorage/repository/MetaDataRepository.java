@@ -12,4 +12,6 @@ public interface MetaDataRepository {
     MetaData findByOriginalFilenameAndUsername(String filename, String username);
 
     void delete(MetaData fileMetaData);
+
+    boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user);
 }
