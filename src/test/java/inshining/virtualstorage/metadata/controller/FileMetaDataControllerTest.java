@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(MetaDataController.class)
-public class MetaDataControllerTest {
+public class FileMetaDataControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

@@ -1,9 +1,6 @@
 package inshining.virtualstorage.model;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,23 +12,25 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-public class MetaData {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "storage_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class MetaData {
 
     @Id
-    private UUID id;
-
-    private String username;
-    private String contentType;
-    private String originalFilename;
-    private long size;
+    protected UUID id;
+    protected String username;
+    protected String contentType;
+    protected String originalFilename;
+    protected String storagePath;
+    protected long size;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     public MetaData() {}
 

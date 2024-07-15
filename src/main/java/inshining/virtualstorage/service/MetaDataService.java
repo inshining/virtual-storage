@@ -2,7 +2,7 @@ package inshining.virtualstorage.service;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.MetaDataFileResponse;
-import inshining.virtualstorage.model.MetaData;
+import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class MetaDataService {
 
         try {
             // Get the file and save it somewhere
-            MetaData metaData = initMetaData(file, username);
+            FileMetaData metaData = initFileMetaData(file, username);
 
             boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
 
@@ -56,7 +56,7 @@ public class MetaDataService {
     public MetaDataFileResponse deleteFile(String filename, String username) {
 
         // find file in meta data from database
-        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        FileMetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             return new MetaDataFileResponse(false, "File not found");
         }
@@ -84,7 +84,7 @@ public class MetaDataService {
 
 
     public FileDownloadDTO downloadFile(String filename, String username) throws IOException, NullPointerException{
-        MetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
+        FileMetaData metaData = metadataRepository.findByOriginalFilenameAndUsername(filename, username);
         if (metaData == null) {
             throw new NullPointerException("Failed to download file: MetaData not found");
         }
@@ -97,12 +97,12 @@ public class MetaDataService {
         return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
     }
 
-    private MetaData initMetaData(MultipartFile file, String username){
+    private FileMetaData initFileMetaData(MultipartFile file, String username){
         UUID uuid1 = UUID.randomUUID();
         String contentType = file.getContentType();
         String originalFilename = file.getOriginalFilename();
         long size = file.getSize();
-        return new MetaData(uuid1, username, contentType, originalFilename, size);
+        return new FileMetaData(uuid1, username, contentType, originalFilename, size);
     }
 
 }
