@@ -23,6 +23,10 @@ public abstract class MetaData {
     protected String originalFilename;
     protected long size;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    protected FolderMetaData parent;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     protected LocalDateTime createdAt;

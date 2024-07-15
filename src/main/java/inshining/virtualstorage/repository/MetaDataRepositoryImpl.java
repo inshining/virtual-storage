@@ -1,10 +1,10 @@
 package inshining.virtualstorage.repository;
 
-import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -36,5 +36,10 @@ private final MetadataJpaRepository metadataJpaRepository;
     @Override
     public boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user) {
         return metadataJpaRepository.existsByOriginalFilenameAndUsernameAndStorageType(folderName, user, "FOLDER");
+    }
+
+    @Override
+    public List<MetaData> findAllByParent(MetaData metaData) {
+        return null;
     }
 }

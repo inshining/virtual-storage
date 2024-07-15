@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Entity
@@ -13,7 +15,8 @@ public class FolderMetaData extends MetaData{
         public static final String CONTENT_TYPE = "inode/directory";
         public FolderMetaData() {}
 
-        public FolderMetaData(String username, String originalFilename) {
+        public FolderMetaData(UUID uuid, String username, String originalFilename) {
+            this.id = uuid;
             this.username = username;
             this.originalFilename = originalFilename;
             this.contentType = CONTENT_TYPE;

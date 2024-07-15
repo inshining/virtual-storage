@@ -2,11 +2,17 @@ package inshining.virtualstorage.service;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.dto.FolderMetaResponse;
+import inshining.virtualstorage.dto.MetaDataDTO;
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -24,8 +30,20 @@ public class FolderMetaDataService {
         if (metaDataRepository.existsByOriginalFilenameAndUsernameInFolders(folderName, user)) {
             throw new DuplicateFileNameException();
         }
-        MetaData folder = new FolderMetaData(user, folderName);
+        UUID uuid = UUID.randomUUID();
+        MetaData folder = new FolderMetaData(uuid, user, folderName);
         metaDataRepository.save(folder);
         return new FolderCreateResponse(user, folderName, parentPath);
+    }
+
+    public FolderMetaResponse listMetadataInFolder(String user, String folder) {
+        MetaData metaData = metaDataRepository.findByOriginalFilenameAndUsername(folder, user);
+        List<MetaDataDTO> metaDataDTOList = new ArrayList<>();
+        for (MetaData data : metaDataRepository.findAllByParent(metaData)) {
+            metaDataDTOList.add(new MetaDataDTO(data.getUsername(), data.getOriginalFilename(), data.getContentType(), data.getSize(), data.getCreatedAt(), data.getUpdatedAt()));
+        }
+        String storedPath = metaData.getStoragePath();
+
+        return new FolderMetaResponse(user, folder,storedPath, metaDataDTOList);
     }
 }

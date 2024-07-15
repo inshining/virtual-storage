@@ -2,6 +2,7 @@ package inshining.virtualstorage.repository;
 
 import inshining.virtualstorage.model.MetaData;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface MetaDataRepository {
@@ -14,4 +15,6 @@ public interface MetaDataRepository {
     void delete(MetaData fileMetaData);
 
     boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user);
+
+    List<MetaData> findAllByParent(MetaData metaData);
 }

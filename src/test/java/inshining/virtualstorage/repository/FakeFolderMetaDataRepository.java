@@ -4,7 +4,9 @@ package inshining.virtualstorage.repository;
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class FakeFolderMetaDataRepository implements MetaDataRepository{
@@ -48,5 +50,16 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository{
                         }
                 }
                 return false;
+        }
+
+        @Override
+        public List<MetaData> findAllByParent(MetaData metaData) {
+                ArrayList<MetaData> result = new ArrayList<>();
+                for (MetaData data : metaDataHashMap.values()) {
+                        if (metaData.getParent() != null && data.getParent().equals(metaData)) {
+                                result.add(data);
+                        }
+                }
+                return result;
         }
 }

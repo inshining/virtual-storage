@@ -44,12 +44,40 @@ public class FolderMetaDataServiceTest {
     @Test
     void alreadyExistFolderNotCreateTest() {
         // given
+        // when
         folderMetaDataService.createFolder("user", "folder1");
 
-        // when
+        // then
         Assertions.assertThrows(DuplicateFileNameException.class, () -> {
             folderMetaDataService.createFolder("user", "folder1");
         });
         // then
+        Assertions.assertEquals(0, response.metaDataDTOS().size());
+
+
+
+    }
+
+    @DisplayName("서로 다른 유저일 경우 폴더 내 파일 구분")
+    @Test
+    void listMetadataInFolderDifferentUserTest(){
+        // given
+        folderMetaDataService.createFolder("user", "folder1");
+        folderMetaDataService.createFolder("user", "folder2");
+        folderMetaDataService.createFolder("user", "folder3");
+
+        folderMetaDataService.createFolder("user2", "folder1");
+        folderMetaDataService.createFolder("user2", "folder2");
+        folderMetaDataService.createFolder("user2", "folder3");
+
+        // when
+        var response = folderMetaDataService.listMetadataInFolder("user", "folder1");
+
+        // then
+        Assertions.assertEquals(3, response.metaDataDTOS().size());
+
+        var response2 = folderMetaDataService.listMetadataInFolder("user2", "folder1");
+
+        Assertions.assertEquals(3, response2.metaDataDTOS().size());
     }
 }
