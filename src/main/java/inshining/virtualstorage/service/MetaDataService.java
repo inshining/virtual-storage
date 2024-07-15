@@ -3,13 +3,12 @@ package inshining.virtualstorage.service;
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.MetaDataFileResponse;
 import inshining.virtualstorage.model.MetaData;
-import inshining.virtualstorage.repository.MetadataRepository;
+import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,7 @@ import java.util.UUID;
 public class MetaDataService {
 
     @Autowired
-    private final MetadataRepository metadataRepository;
+    private final MetaDataRepository metadataRepository;
 
     @Autowired
     private final StorageService storageService;
@@ -33,7 +32,7 @@ public class MetaDataService {
 
             boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
 
-            if (isWriteFile == false){
+            if (!isWriteFile){
                 return new MetaDataFileResponse(false, "Failed to upload file: File is not written");
             }
 
@@ -42,7 +41,7 @@ public class MetaDataService {
 
             Boolean isExit = metadataRepository.existsById(metaData.getId());
 
-            if (isExit == false ){
+            if (!isExit){
                 // 디비에 저장되지 않았다면 파일을 삭제해야함
                 storageService.deleteFile(metaData.getStoragePath());
                 return new MetaDataFileResponse(false, "Failed to upload file: MetaData is not created");
@@ -66,7 +65,7 @@ public class MetaDataService {
             return new MetaDataFileResponse(false, "You are not authorized to delete this file");
         }
 
-        Boolean isDeleted = false;
+        boolean isDeleted;
 
         try {
             isDeleted = storageService.deleteFile(metaData.getStoragePath());
@@ -90,7 +89,7 @@ public class MetaDataService {
             throw new NullPointerException("Failed to download file: MetaData not found");
         }
 
-        InputStream inputStream = null;
+        InputStream inputStream;
         inputStream = storageService.getFileAsInputStream(metaData.getStoragePath());
         if (inputStream == null) {
             throw new NullPointerException("Failed to download file: File not found");

@@ -1,12 +1,15 @@
 package inshining.virtualstorage.repository;
 
 import inshining.virtualstorage.model.MetaData;
-import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface MetadataRepository extends JpaRepository<MetaData, UUID> {
+public interface MetaDataRepository {
+    MetaData save(MetaData metaData);
+
+    Boolean existsById(UUID id);
 
     MetaData findByOriginalFilenameAndUsername(String filename, String username);
 
+    void delete(MetaData metaData);
 }

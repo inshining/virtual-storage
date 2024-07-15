@@ -3,7 +3,7 @@ package inshining.virtualstorage.metadata.service;
 import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.MetaDataFileResponse;
 import inshining.virtualstorage.model.MetaData;
-import inshining.virtualstorage.repository.MetadataRepository;
+import inshining.virtualstorage.repository.MetaDataRepository;
 import inshining.virtualstorage.service.LocalStorageService;
 import inshining.virtualstorage.service.MetaDataService;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class MetaDataServiceTest {
 
     @Mock
-    private MetadataRepository metadataRepository;
+    private MetaDataRepository metadataRepository;
 
     @Mock
     private LocalStorageService storageService;
@@ -43,18 +43,22 @@ public class MetaDataServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        try{
+            MockitoAnnotations.openMocks(this);
 
-        String fileName = "testfile.txt";
-        String content = "Hello, World!";
-        String contentType = "text/plain";
+            String fileName = "testfile.txt";
+            String content = "Hello, World!";
+            String contentType = "text/plain";
 
-        file = new MockMultipartFile(
-                "file",
-                fileName,
-                contentType,
-                content.getBytes()
-        );
+            file = new MockMultipartFile(
+                    "file",
+                    fileName,
+                    contentType,
+                    content.getBytes()
+            );
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -118,7 +122,7 @@ public class MetaDataServiceTest {
     }
 
     @Test
-    void uploadFile_Failure() throws IOException {
+    void uploadFile_Failure() {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "test.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes()
         );
@@ -206,7 +210,7 @@ public class MetaDataServiceTest {
     }
 
     @Test
-    void downloadFileFailFileNotFound() throws IOException {
+    void downloadFileFailFileNotFound(){
         String filename = "nonexistent.txt";
         String username = "testUser";
 
