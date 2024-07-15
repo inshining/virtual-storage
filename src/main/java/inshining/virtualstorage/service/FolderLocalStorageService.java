@@ -15,8 +15,8 @@ public class FolderLocalStorageService implements FolderStorageService {
 
 
     @Override
-    public boolean createFolder(String storagePath) {
-        Path path = Paths.get(STORAGE_LOCATION, storagePath);
+    public boolean createFolder(String username, String storagePath) {
+        Path path = Paths.get(STORAGE_LOCATION, username,storagePath);
         String folderPath = path.toString();
         try {
             if (Files.exists(path)) {
