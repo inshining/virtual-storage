@@ -4,11 +4,14 @@ import inshining.virtualstorage.service.FolderLocalStorageService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@EnabledOnOs({OS.MAC, OS.LINUX})
 public class FolderStorageServiceTest {
     private static final String storageLocation = "upload/";
     private FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(storageLocation);
