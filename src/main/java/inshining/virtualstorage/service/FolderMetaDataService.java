@@ -42,8 +42,8 @@ public class FolderMetaDataService {
         for (MetaData data : metaDataRepository.findAllByParent(metaData)) {
             metaDataDTOList.add(new MetaDataDTO(data.getUsername(), data.getOriginalFilename(), data.getContentType(), data.getSize(), data.getCreatedAt(), data.getUpdatedAt()));
         }
-        String storedPath = metaData.getStoragePath();
+        String path = metaData.getPath();
 
-        return new FolderMetaResponse(user, folder,storedPath, metaDataDTOList);
+        return new FolderMetaResponse(user, folder,path, metaDataDTOList);
     }
 }

@@ -2,6 +2,7 @@ package inshining.virtualstorage.service;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.dto.FolderMetaResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +24,9 @@ public class FolderService {
         }
         folderStorageService.createFolder(user, folder);
         return folderCreateResponse;
+    }
+
+    public FolderMetaResponse getMetaDataInFolder(String username, String folderName) {
+        return folderMetaDataService.listMetadataInFolder(username, folderName);
     }
 }

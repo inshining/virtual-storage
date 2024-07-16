@@ -2,6 +2,7 @@ package inshining.virtualstorage.metadata.service;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.dto.FolderMetaResponse;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.FolderLocalStorageService;
 import inshining.virtualstorage.service.FolderMetaDataService;
@@ -68,6 +69,26 @@ public class FolderServiceTest {
         // then
         Path path = Paths.get(LOCAL_STORAGE_PATH, username, folderName);
         Assertions.assertTrue(Files.exists(path));
+        FileDeletor.delete(path, 2);
+    }
+
+    @DisplayName("폴더 하위 파일들 리스트 가져오기")
+    @Test
+    void getFilesInFolderTest() {
+        // given
+        String username = "user";
+        String folderName = "folder1";
+        folderService.createFolder(username, folderName);
+        Path path = Paths.get(LOCAL_STORAGE_PATH, username, folderName);
+
+        // when
+        FolderMetaResponse response = folderService.getMetaDataInFolder(username, folderName);
+
+        // then
+        Assertions.assertEquals(0, response.metaDataDTOS().size());
+        Assertions.assertEquals(folderName, response.folderName());
+        Assertions.assertEquals(username, response.ownerName());
+        Assertions.assertEquals("/", response.path());
         FileDeletor.delete(path, 2);
     }
 }
