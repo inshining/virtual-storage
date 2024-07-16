@@ -1,5 +1,6 @@
 package inshining.virtualstorage.metadata.service;
 
+import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.FolderLocalStorageService;
@@ -56,6 +57,17 @@ public class FolderServiceTest {
     @DisplayName("동일 폴더 중복 생성시 에러 발생")
     @Test
     void duplicatedFolder_Then_Fail(){
+        // given
+        String username = "user";
+        String folderName = "folder1";
+        folderService.createFolder(username, folderName);
 
+        // when
+        Assertions.assertThrows(DuplicateFileNameException.class, () -> folderService.createFolder(username, folderName));
+
+        // then
+        Path path = Paths.get(LOCAL_STORAGE_PATH, username, folderName);
+        Assertions.assertTrue(Files.exists(path));
+        FileDeletor.delete(path, 2);
     }
 }
