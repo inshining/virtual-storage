@@ -24,6 +24,9 @@ public abstract class MetaData {
     protected long size;
     protected String path = "/";
 
+    @Column(name = "storage_type", insertable = false, updatable = false)
+    protected String storageType;
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     protected FolderMetaData parent;

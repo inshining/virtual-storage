@@ -15,13 +15,16 @@ private final MetadataJpaRepository metadataJpaRepository;
 
     @Override
     public MetaData save(MetaData metaData) {
+        if (metaData == null) throw new IllegalArgumentException("MetaData is null");
         return metadataJpaRepository.save(metaData);
     }
 
     @Override
     public Boolean existsById(UUID id) {
+        if (id == null) throw new IllegalArgumentException("Id is null");
         return metadataJpaRepository.existsById(id);
     }
+
 
     @Override
     public MetaData findByOriginalFilenameAndUsername(String filename, String username) {
@@ -30,6 +33,7 @@ private final MetadataJpaRepository metadataJpaRepository;
 
     @Override
     public void delete(MetaData metaData) {
+        if (metaData == null) throw new IllegalArgumentException("MetaData is null");
         metadataJpaRepository.delete(metaData);
     }
 
@@ -40,6 +44,6 @@ private final MetadataJpaRepository metadataJpaRepository;
 
     @Override
     public List<MetaData> findAllByParent(MetaData metaData) {
-        return null;
+        return metadataJpaRepository.findAllByParent(metaData);
     }
 }
