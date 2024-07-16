@@ -5,6 +5,7 @@ import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.FolderLocalStorageService;
 import inshining.virtualstorage.service.FolderMetaDataService;
 import inshining.virtualstorage.service.FolderService;
+import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,14 +38,7 @@ public class FolderServiceTest {
         Assertions.assertEquals("/", response.path());
 
         Assertions.assertTrue(Files.exists(path));
-        if (Files.exists(path)) {
-            try {
-                Files.delete(path);
-                Files.delete(path.getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path, 2);
 
         //when
         folderName = "folder1/folder2";
@@ -56,14 +50,12 @@ public class FolderServiceTest {
         Assertions.assertEquals("folder2", response2.folderName());
         Assertions.assertEquals("folder1/", response2.path());
         Assertions.assertTrue(Files.exists(path));
-        if (Files.exists(path)) {
-            try {
-                Files.delete(path);
-                Files.delete(path.getParent());
-                Files.delete(path.getParent().getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path, 3);
+    }
+
+    @DisplayName("동일 폴더 중복 생성시 에러 발생")
+    @Test
+    void duplicatedFolder_Then_Fail(){
+
     }
 }

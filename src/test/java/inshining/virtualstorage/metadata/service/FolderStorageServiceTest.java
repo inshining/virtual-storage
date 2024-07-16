@@ -1,6 +1,7 @@
 package inshining.virtualstorage.metadata.service;
 
 import inshining.virtualstorage.service.FolderLocalStorageService;
+import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,14 +27,7 @@ public class FolderStorageServiceTest {
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder");
         Assertions.assertTrue(Files.exists(path));
-        if (Files.exists(path)) {
-            try {
-                Files.delete(path);
-                Files.delete(path.getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("존재하지 않은 하위 폴더 모두 만들기")
@@ -44,16 +38,7 @@ public class FolderStorageServiceTest {
         Path path = Paths.get(storageLocation, USERNAME, "testFolder1/testFolder2/testFolder3");
         Assertions.assertTrue(Files.exists(path));
 
-        if (Files.exists(path)) {
-            try {
-                Files.delete(path);
-                Files.delete(path.getParent());
-                Files.delete(path.getParent().getParent());
-                Files.delete(path.getParent().getParent().getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path, 4);
     }
 
     @DisplayName("이미 존재하는 폴더 만들기")
@@ -66,14 +51,7 @@ public class FolderStorageServiceTest {
 
         Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
 
-        if (Files.exists(path)) {
-            try {
-                Files.delete(path);
-                Files.delete(path.getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path, 2);
 
         Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME,"testFolder/testFolder2"));
 
@@ -82,14 +60,6 @@ public class FolderStorageServiceTest {
 
         Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
 
-        if (Files.exists(path2)) {
-            try {
-                Files.delete(path2);
-                Files.delete(path2.getParent());
-                Files.delete(path2.getParent().getParent());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        FileDeletor.delete(path2, 3);
     }
 }
