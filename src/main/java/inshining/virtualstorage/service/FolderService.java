@@ -8,10 +8,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class FolderService {
     private final FolderMetaDataService folderMetaDataService;
-//    private final FolderStorageService folderStorageService;
+    private final FolderStorageService folderStorageService;
 
     public FolderCreateResponse createFolder(String user, String folder) {
         FolderCreateResponse folderCreateResponse = folderMetaDataService.createFolder(user, folder);
+        folderStorageService.createFolder(user, folder);
         return folderCreateResponse;
     }
 }
