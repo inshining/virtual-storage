@@ -3,7 +3,10 @@ package inshining.virtualstorage.metadata.service;
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.dto.FolderMetaResponse;
+import inshining.virtualstorage.model.FileMetaData;
+import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
+import inshining.virtualstorage.service.FileMetaDataService;
 import inshining.virtualstorage.service.FolderLocalStorageService;
 import inshining.virtualstorage.service.FolderMetaDataService;
 import inshining.virtualstorage.service.FolderService;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class FolderServiceTest {
     private static final String LOCAL_STORAGE_PATH = "upload/";
@@ -23,6 +27,7 @@ public class FolderServiceTest {
     private final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(LOCAL_STORAGE_PATH);
     private final FolderService folderService = new FolderService(folderMetaDataService, folderLocalStorageService);
 
+    private final FileMetaDataService fileMetaDataService = new FileMetaDataService(folderMetaDataRepository);
 
 
     @DisplayName("폴더 생성하기")
@@ -89,6 +94,16 @@ public class FolderServiceTest {
         Assertions.assertEquals(folderName, response.folderName());
         Assertions.assertEquals(username, response.ownerName());
         Assertions.assertEquals("/", response.path());
+
+        FolderMetaData folderMetaData = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername(folderName, username);
+
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100, "folder1/", folderMetaData ));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file2",100, "folder1/", folderMetaData));
+        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file3",100, "folder1/", folderMetaData));
+
+        response = folderService.getMetaDataInFolder(username, folderName);
+        Assertions.assertEquals(3, response.metaDataDTOS().size());
         FileDeletor.delete(path, 2);
+
     }
 }
