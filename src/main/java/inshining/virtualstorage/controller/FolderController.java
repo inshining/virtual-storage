@@ -1,6 +1,7 @@
 package inshining.virtualstorage.controller;
 
 import exception.DuplicateFileNameException;
+import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.service.FolderService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,9 @@ public class FolderController {
     private final FolderService folderService;
 
     @PostMapping("/")
-    public ResponseEntity createFolder(@RequestParam String user, @RequestParam String folderName) {
+    public ResponseEntity createFolder(@RequestBody FolderCreateRequest request) {
+        String user = request.user();
+        String folderName = request.folderName();
         FolderCreateResponse folderCreateResponse;
         try {
             folderCreateResponse = folderService.createFolder(user, folderName);

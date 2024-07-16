@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 @EnabledOnOs({OS.MAC, OS.LINUX})
 public class FolderStorageServiceTest {
     private static final String storageLocation = "upload/";
-    private static final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(storageLocation);
+    private static final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService();
 
     private static final String USERNAME = "testUser";
 

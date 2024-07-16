@@ -1,6 +1,6 @@
 package inshining.virtualstorage.service.storage;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -8,11 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@RequiredArgsConstructor
 @Service
 public class FolderLocalStorageService implements FolderStorageService {
-    private final String STORAGE_LOCATION;
 
+    @Value("${storage.location}")
+    private String STORAGE_LOCATION = "upload/";
 
     @Override
     public boolean createFolder(String username, String storagePath) {

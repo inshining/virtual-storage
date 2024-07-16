@@ -4,3 +4,6 @@ spring:
     username: root
     password:
     driver-class-name: org.h2.Driver
+
+storage:
+  location: upload/

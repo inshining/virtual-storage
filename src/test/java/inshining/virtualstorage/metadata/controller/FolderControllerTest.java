@@ -1,7 +1,9 @@
 package inshining.virtualstorage.metadata.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.controller.FolderController;
+import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.service.FolderService;
 import org.junit.jupiter.api.Test;
@@ -24,14 +26,21 @@ public class FolderControllerTest {
     @MockBean
     private FolderService folderService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Test
     void testCreateFolder_Success() throws Exception {
+        String username = "user";
+        String folderName = "folderName";
         FolderCreateResponse folderCreateResponse = new FolderCreateResponse("user", "folderName", "parentPath/");
+        String content = objectMapper.writeValueAsString(new FolderCreateRequest(username, folderName));
+        when(folderService.createFolder(username, folderName)).thenReturn(folderCreateResponse);
         when(folderService.createFolder("user", "parentPath/folderName")).thenReturn(folderCreateResponse);
 
         mockMvc.perform(post("/folder/")
-                .param("user", "user")
-                .param("folderName", "parentPath/folderName"))
+                        .content(content)
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ownerName").value(folderCreateResponse.ownerName()))
                 .andExpect(jsonPath("$.folderName").value(folderCreateResponse.folderName()))

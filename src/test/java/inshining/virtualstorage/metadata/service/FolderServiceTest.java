@@ -24,7 +24,7 @@ public class FolderServiceTest {
     private static final String LOCAL_STORAGE_PATH = "upload/";
     private final FakeFolderMetaDataRepository folderMetaDataRepository = new FakeFolderMetaDataRepository();
     private final FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
-    private final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(LOCAL_STORAGE_PATH);
+    private final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService();
     private final FolderService folderService = new FolderService(folderMetaDataService, folderLocalStorageService);
 
     private final FileMetaDataService fileMetaDataService = new FileMetaDataService(folderMetaDataRepository);
