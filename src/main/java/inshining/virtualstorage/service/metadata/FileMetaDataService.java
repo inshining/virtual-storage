@@ -1,4 +1,4 @@
-package inshining.virtualstorage.service;
+package inshining.virtualstorage.service.metadata;
 
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;

@@ -3,6 +3,8 @@ package inshining.virtualstorage.service;
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.dto.FolderMetaResponse;
+import inshining.virtualstorage.service.metadata.FolderMetaDataService;
+import inshining.virtualstorage.service.storage.FolderStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

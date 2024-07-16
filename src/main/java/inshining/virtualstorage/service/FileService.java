@@ -4,6 +4,8 @@ import inshining.virtualstorage.dto.FileDownloadDTO;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.MetaData;
+import inshining.virtualstorage.service.metadata.FileMetaDataService;
+import inshining.virtualstorage.service.storage.StorageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

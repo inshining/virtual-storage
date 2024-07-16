@@ -1,6 +1,6 @@
 package inshining.virtualstorage.metadata.service;
 
-import inshining.virtualstorage.service.FolderLocalStorageService;
+import inshining.virtualstorage.service.storage.FolderLocalStorageService;
 import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -15,9 +15,9 @@ import java.nio.file.Paths;
 @EnabledOnOs({OS.MAC, OS.LINUX})
 public class FolderStorageServiceTest {
     private static final String storageLocation = "upload/";
-    private FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(storageLocation);
+    private static final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService(storageLocation);
 
-    private static String USERNAME = "testUser";
+    private static final String USERNAME = "testUser";
 
 
     @DisplayName("폴더 1개 만들기")

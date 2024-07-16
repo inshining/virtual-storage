@@ -1,4 +1,4 @@
-package inshining.virtualstorage.service;
+package inshining.virtualstorage.service.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

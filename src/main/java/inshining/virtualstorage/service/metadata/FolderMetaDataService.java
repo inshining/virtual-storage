@@ -1,4 +1,4 @@
-package inshining.virtualstorage.service;
+package inshining.virtualstorage.service.metadata;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
