@@ -1,6 +1,6 @@
 package inshining.virtualstorage.metadata.service;
 
-import exception.DuplicateFileNameException;
+import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FileMetaData;
@@ -21,6 +21,10 @@ public class FolderMetaDataServiceTest {
     private final FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
 
     private final FileMetaDataService fileMetaDataService = new FileMetaDataService(folderMetaDataRepository);
+
+    private static String username = "username1";
+    private static String originalName = "originName1";
+    private static String changedName = "changedName";
 
     @DisplayName("폴더 생성")
     @Test
