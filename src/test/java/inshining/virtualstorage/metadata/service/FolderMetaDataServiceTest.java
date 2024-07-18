@@ -2,6 +2,7 @@ package inshining.virtualstorage.metadata.service;
 
 import exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
+import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
@@ -106,5 +107,46 @@ public class FolderMetaDataServiceTest {
         var response2 = folderMetaDataService.listMetadataInFolder("user2", "folder1");
 
         Assertions.assertEquals(2, response2.metaDataDTOS().size());
+    }
+
+
+    @DisplayName("폴더 명 변경")
+    @Test
+    void renameFolderNameTest(){
+        folderMetaDataService.createFolder(username, originalName);
+
+        FolderCreateResponse folderCreateResponse = folderMetaDataService.renameFolder(username, originalName, changedName);
+
+        Assertions.assertEquals(username, folderCreateResponse.ownerName());
+        Assertions.assertEquals(changedName, folderCreateResponse.folderName());
+
+        String originName2 = "origin";
+        String changedName2 = "dfafaffad";
+
+        folderMetaDataService.createFolder(username, originName2);
+
+        FolderCreateResponse folderCreateResponse2 = folderMetaDataService.renameFolder(username, originName2, changedName2);
+
+        Assertions.assertEquals(username, folderCreateResponse2.ownerName());
+        Assertions.assertEquals(changedName2, folderCreateResponse2.folderName());
+    }
+
+    @DisplayName("존재 하지 않은 폴더의 이름을 변경하고자 할때 실패")
+    @Test
+    void noExistFolderName_Rename_Then_Fail(){
+        String noExistName = "noExistName";
+
+        folderMetaDataService.createFolder(username, originalName);
+
+        Assertions.assertThrows(NoExistFolderException.class, () -> folderMetaDataService.renameFolder(username, noExistName, changedName));
+    }
+    @DisplayName("존재 하지 않은 사용자의 폴더 이름을 변경하고자 할때 실패")
+    @Test
+    void noExistUserName_Rename_Then_Fail(){
+        String noExistUserName = "noExistName";
+
+        folderMetaDataService.createFolder(username, originalName);
+
+        Assertions.assertThrows(NoExistFolderException.class, () -> folderMetaDataService.renameFolder(noExistUserName, originalName, changedName));
     }
 }

@@ -4,6 +4,7 @@ import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.dto.FolderMetaResponse;
 import inshining.virtualstorage.dto.MetaDataDTO;
+import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
@@ -45,5 +46,15 @@ public class FolderMetaDataService {
         String path = metaData.getPath();
 
         return new FolderMetaResponse(user, folder,path, metaDataDTOList);
+    }
+
+    public FolderCreateResponse renameFolder(String username, String originalName, String changedName) throws NoExistFolderException{
+        MetaData metaData = metaDataRepository.findByOriginalFilenameAndUsername(originalName, username);
+        if (metaData == null) {
+            throw new NoExistFolderException();
+        }
+        metaData.setOriginalFilename(changedName);
+        MetaData changedMetaData = metaDataRepository.save(metaData);
+        return new FolderCreateResponse(changedMetaData.getUsername(), changedMetaData.getOriginalFilename(), changedMetaData.getPath());
     }
 }
