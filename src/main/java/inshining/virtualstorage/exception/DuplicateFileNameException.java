@@ -1,4 +1,4 @@
-package exception;
+package inshining.virtualstorage.exception;
 
 public class DuplicateFileNameException extends RuntimeException{
 }
