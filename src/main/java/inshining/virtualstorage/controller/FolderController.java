@@ -1,6 +1,6 @@
 package inshining.virtualstorage.controller;
 
-import exception.DuplicateFileNameException;
+import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.service.FolderService;

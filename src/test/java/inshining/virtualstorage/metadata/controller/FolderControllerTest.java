@@ -1,7 +1,7 @@
 package inshining.virtualstorage.metadata.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import exception.DuplicateFileNameException;
+import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.controller.FolderController;
 import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.dto.FolderCreateResponse;
