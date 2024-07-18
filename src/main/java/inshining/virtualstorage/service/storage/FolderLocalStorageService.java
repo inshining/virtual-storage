@@ -37,4 +37,18 @@ public class FolderLocalStorageService implements FolderStorageService {
         }
         return true;
     }
+
+    public boolean changeFolderName(String username, String folderName, String targetFolderName) {
+        Path path = Paths.get(STORAGE_LOCATION, username, folderName);
+        Path targetPath = Paths.get(STORAGE_LOCATION, username, targetFolderName);
+        try {
+            Files.move(path, targetPath);
+            System.out.println("Folder renamed successfully using Files: " + path.toString() + " -> " + targetPath.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to rename folder using Files: " + path.toString() + " -> " + targetPath.toString());
+            return false;
+        }
+        return true;
+    }
 }

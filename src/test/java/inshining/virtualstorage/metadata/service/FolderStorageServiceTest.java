@@ -19,6 +19,8 @@ public class FolderStorageServiceTest {
 
     private static final String USERNAME = "testUser";
 
+    private static final String FOLDER_NAME = "testFolder";
+    private static final String CHANGED_FOLDER_NAME = "changedFolder";
 
     @DisplayName("폴더 1개 만들기")
     @Test
@@ -61,5 +63,49 @@ public class FolderStorageServiceTest {
         Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
 
         FileDeletor.delete(path2, 3);
+    }
+
+    @DisplayName("폴더 이름 변경")
+    @Test
+    void changeFolderNameTest(){
+        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+
+        Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
+        Assertions.assertTrue(Files.exists(path));
+
+        Assertions.assertTrue(folderLocalStorageService.changeFolderName(USERNAME, FOLDER_NAME, CHANGED_FOLDER_NAME));
+
+        Path changedPath = Paths.get(storageLocation, USERNAME, CHANGED_FOLDER_NAME);
+        Assertions.assertTrue(Files.exists(changedPath));
+
+        FileDeletor.delete(changedPath, 2);
+    }
+
+    @DisplayName("실패: 존재하지 않는 폴더 이름 변경")
+    @Test
+    void noExistFolderNameTest(){
+        String noExistFolderName = "noExistFolder";
+        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+
+        Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
+        Assertions.assertTrue(Files.exists(path));
+
+        Assertions.assertFalse(folderLocalStorageService.changeFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
+
+        FileDeletor.delete(path, 2);
+    }
+
+    @DisplayName("실패: 존재하지 않는 유저의 폴더 이름 변경")
+    @Test
+    void noExistUsernameTest(){
+        String noExistUsername = "noExistUser";
+        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+
+        Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
+        Assertions.assertTrue(Files.exists(path));
+
+        Assertions.assertFalse(folderLocalStorageService.changeFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
+
+        FileDeletor.delete(path, 2);
     }
 }
