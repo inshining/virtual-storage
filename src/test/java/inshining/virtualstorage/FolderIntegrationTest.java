@@ -1,5 +1,6 @@
 package inshining.virtualstorage;
 
+import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import inshining.virtualstorage.util.FileDeletor;
