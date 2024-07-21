@@ -1,4 +1,4 @@
-package inshining.virtualstorage.service;
+package inshining.virtualstorage.service.storage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

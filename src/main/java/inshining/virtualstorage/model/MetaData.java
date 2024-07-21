@@ -1,9 +1,6 @@
 package inshining.virtualstorage.model;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,33 +12,34 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-public class MetaData {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "storage_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class MetaData {
 
     @Id
-    private UUID id;
+    protected UUID id;
+    protected String username;
+    protected String contentType;
+    protected String originalFilename;
+    protected long size;
+    protected String path = "/";
 
-    private String username;
-    private String contentType;
-    private String originalFilename;
-    private long size;
+    @Column(name = "storage_type", insertable = false, updatable = false)
+    protected String storageType;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    protected FolderMetaData parent;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    protected LocalDateTime updatedAt;
 
     public MetaData() {}
-
-    public MetaData(UUID id, String username, String contentType, String originalFilename, long size) {
-        this.id = id;
-        this.username = username;
-        this.contentType = contentType;
-        this.originalFilename = originalFilename;
-        this.size = size;
-    }
 
     public String getStoragePath() {
         return this.id.toString() + "-" + this.originalFilename;
