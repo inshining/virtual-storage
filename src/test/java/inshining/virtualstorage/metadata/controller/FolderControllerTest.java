@@ -1,6 +1,7 @@
 package inshining.virtualstorage.metadata.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import inshining.virtualstorage.dto.FolderRenameRequest;
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.controller.FolderController;
 import inshining.virtualstorage.dto.FolderCreateRequest;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,4 +62,39 @@ public class FolderControllerTest {
                 .param("folderName", folderName))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void testRenameFolder_Success() throws Exception {
+        String username = "user";
+        String folderName = "folderName";
+        String newFolderName = "newFolderName";
+        FolderCreateResponse folderCreateResponse = new FolderCreateResponse("user", "newFolderName", "parentPath/");
+        String content = objectMapper.writeValueAsString(new FolderRenameRequest(username, folderName,newFolderName));
+        when(folderService.renameFolder(username, folderName, newFolderName)).thenReturn(folderCreateResponse);
+
+        mockMvc.perform(put("/folder/")
+                        .content(content)
+                        .contentType("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ownerName").value(folderCreateResponse.ownerName()))
+                .andExpect(jsonPath("$.folderName").value(folderCreateResponse.folderName()))
+                .andExpect(jsonPath("$.path").value(folderCreateResponse.path())
+                );
+    }
+
+    @Test
+    void testRenameDuplicatedFolder_Fail() throws Exception {
+        String username = "user";
+        String folderName = "folderName";
+        String newFolderName = "newFolderName";
+        when(folderService.renameFolder(username, folderName, newFolderName)).thenThrow(DuplicateFileNameException.class);
+
+        mockMvc.perform(put("/folder/")
+                .param("userName", username)
+                .param("originFolderName", folderName)
+                .param("targetFolderName", newFolderName))
+                .andExpect(status().isBadRequest());
+    }
+
+
 }

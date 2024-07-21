@@ -3,6 +3,7 @@ package inshining.virtualstorage.service;
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.dto.FolderMetaResponse;
+import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
 import inshining.virtualstorage.service.storage.FolderStorageService;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,19 @@ public class FolderService {
 
     public FolderMetaResponse getMetaDataInFolder(String username, String folderName) {
         return folderMetaDataService.listMetadataInFolder(username, folderName);
+    }
+
+    public FolderCreateResponse renameFolder(String username, String folderName, String newFolderName) throws NoExistFolderException {
+        FolderCreateResponse folderCreateResponse;
+        try{
+            folderCreateResponse = folderMetaDataService.renameFolder(username, folderName, newFolderName);
+        } catch (NoExistFolderException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        boolean isSuccess = folderStorageService.renameFolderName(username, folderName, newFolderName);
+        return folderCreateResponse;
     }
 }

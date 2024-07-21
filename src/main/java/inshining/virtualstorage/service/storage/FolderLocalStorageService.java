@@ -38,7 +38,7 @@ public class FolderLocalStorageService implements FolderStorageService {
         return true;
     }
 
-    public boolean changeFolderName(String username, String folderName, String targetFolderName) {
+    public boolean renameFolderName(String username, String folderName, String targetFolderName) {
         Path path = Paths.get(STORAGE_LOCATION, username, folderName);
         Path targetPath = Paths.get(STORAGE_LOCATION, username, targetFolderName);
         try {

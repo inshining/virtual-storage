@@ -73,7 +73,7 @@ public class FolderStorageServiceTest {
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
         Assertions.assertTrue(Files.exists(path));
 
-        Assertions.assertTrue(folderLocalStorageService.changeFolderName(USERNAME, FOLDER_NAME, CHANGED_FOLDER_NAME));
+        Assertions.assertTrue(folderLocalStorageService.renameFolderName(USERNAME, FOLDER_NAME, CHANGED_FOLDER_NAME));
 
         Path changedPath = Paths.get(storageLocation, USERNAME, CHANGED_FOLDER_NAME);
         Assertions.assertTrue(Files.exists(changedPath));
@@ -90,7 +90,7 @@ public class FolderStorageServiceTest {
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
         Assertions.assertTrue(Files.exists(path));
 
-        Assertions.assertFalse(folderLocalStorageService.changeFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
+        Assertions.assertFalse(folderLocalStorageService.renameFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
 
         FileDeletor.delete(path, 2);
     }
@@ -104,7 +104,7 @@ public class FolderStorageServiceTest {
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
         Assertions.assertTrue(Files.exists(path));
 
-        Assertions.assertFalse(folderLocalStorageService.changeFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
+        Assertions.assertFalse(folderLocalStorageService.renameFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
 
         FileDeletor.delete(path, 2);
     }

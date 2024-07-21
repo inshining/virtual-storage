@@ -1,5 +1,6 @@
 package inshining.virtualstorage.controller;
 
+import inshining.virtualstorage.dto.FolderRenameRequest;
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateRequest;
 import inshining.virtualstorage.dto.FolderCreateResponse;
@@ -27,6 +28,23 @@ public class FolderController {
             return ResponseEntity.badRequest().body( e.getMessage());
         }
         return ResponseEntity.ok(folderCreateResponse);
+    }
+
+    @PutMapping("/")
+    public ResponseEntity renameFolder(@RequestBody FolderRenameRequest request) {
+        FolderCreateResponse folderRenameRequest;
+        String user = request.userName();
+        String originFolderName = request.originFolderName();
+        String targetFolderName = request.targetFolderName();
+
+        try {
+            folderRenameRequest = folderService.renameFolder(user, originFolderName, targetFolderName);
+        } catch (DuplicateFileNameException d){
+            return ResponseEntity.badRequest().body("Duplicate file name");
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body( e.getMessage());
+        }
+        return ResponseEntity.ok(folderRenameRequest);
     }
 
     @GetMapping("get/")
