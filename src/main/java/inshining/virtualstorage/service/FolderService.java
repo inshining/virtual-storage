@@ -34,6 +34,7 @@ public class FolderService {
     }
 
     public FolderCreateResponse renameFolder(String username, String folderName, String newFolderName) throws NoExistFolderException {
+        // TODO: metadat나 실제 storage 중 하나라도 실패하면 rollback 해야함
         FolderCreateResponse folderCreateResponse;
         try{
             folderCreateResponse = folderMetaDataService.renameFolder(username, folderName, newFolderName);
