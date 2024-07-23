@@ -44,6 +44,14 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+        xml.enabled true
+    }
 }
 
 sonar {
