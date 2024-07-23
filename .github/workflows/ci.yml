@@ -17,8 +17,6 @@ permissions:
   checks: write
   pull-requests: write
 
-projectJDK: corretto-22
-
 jobs:
   qodana:
     runs-on: ubuntu-latest
