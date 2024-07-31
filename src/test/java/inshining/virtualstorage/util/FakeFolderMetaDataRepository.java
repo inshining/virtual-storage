@@ -1,15 +1,16 @@
-package inshining.virtualstorage.repository;
+package inshining.virtualstorage.util;
 
 
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
+import inshining.virtualstorage.repository.MetaDataRepository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class FakeFolderMetaDataRepository implements MetaDataRepository{
+public class FakeFolderMetaDataRepository implements MetaDataRepository {
 
         private final HashMap<UUID, MetaData> store = new HashMap<>();
 

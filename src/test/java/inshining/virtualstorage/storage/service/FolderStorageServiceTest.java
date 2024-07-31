@@ -1,4 +1,4 @@
-package inshining.virtualstorage.metadata.service;
+package inshining.virtualstorage.storage.service;
 
 import inshining.virtualstorage.service.storage.FolderLocalStorageService;
 import inshining.virtualstorage.util.FileDeletor;

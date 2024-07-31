@@ -1,4 +1,4 @@
-package inshining.virtualstorage.metadata.service;
+package inshining.virtualstorage.service;
 
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderCreateResponse;
@@ -6,11 +6,10 @@ import inshining.virtualstorage.dto.FolderMetaResponse;
 import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.FolderMetaData;
-import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
+import inshining.virtualstorage.util.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.metadata.FileMetaDataService;
 import inshining.virtualstorage.service.storage.FolderLocalStorageService;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
-import inshining.virtualstorage.service.FolderService;
 import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

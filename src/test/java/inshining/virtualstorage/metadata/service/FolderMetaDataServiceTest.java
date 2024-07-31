@@ -5,7 +5,7 @@ import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.FolderMetaData;
-import inshining.virtualstorage.repository.FakeFolderMetaDataRepository;
+import inshining.virtualstorage.util.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.metadata.FileMetaDataService;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
 import org.junit.jupiter.api.DisplayName;
