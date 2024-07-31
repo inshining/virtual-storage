@@ -95,9 +95,9 @@ public class FolderServiceTest {
 
         FolderMetaData folderMetaData = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername(FOLDER_NAME, USERNAME);
 
-        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100, "folder1/", folderMetaData ));
-        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file2",100, "folder1/", folderMetaData));
-        fileMetaDataService.save(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file3",100, "folder1/", folderMetaData));
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file1",100, "folder1/", folderMetaData ));
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file2",100, "folder1/", folderMetaData));
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), "user",  "text/plain", "file3",100, "folder1/", folderMetaData));
 
         response = folderService.getMetaDataInFolder(USERNAME, FOLDER_NAME);
         Assertions.assertEquals(3, response.metaDataDTOS().size());
@@ -141,4 +141,5 @@ public class FolderServiceTest {
         Assertions.assertThrows(NoExistFolderException.class, () -> folderService.renameFolder(USERNAME, noExistFolder, newFolderName));
         FileDeletor.delete(path, 2);
     }
+
 }

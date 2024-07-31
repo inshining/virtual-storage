@@ -15,7 +15,7 @@ public class FileMetaDataService {
 
     private final MetaDataRepository metadataRepository;
 
-    public MetaData save(FileMetaData fileMetaData){
+    public MetaData createFile(FileMetaData fileMetaData){
         return metadataRepository.save(fileMetaData);
     }
 

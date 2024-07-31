@@ -1,5 +1,6 @@
 package inshining.virtualstorage.repository;
 
+import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface MetaDataRepository {
     boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user);
 
     List<MetaData> findAllByParent(MetaData metaData);
+
+    FolderMetaData findFolderByPathAndUsername(String path, String username);
 }

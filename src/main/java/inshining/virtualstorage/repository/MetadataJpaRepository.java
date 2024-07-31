@@ -1,5 +1,6 @@
 package inshining.virtualstorage.repository;
 
+import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.model.MetaData;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,4 +16,6 @@ public interface MetadataJpaRepository extends JpaRepository<MetaData, UUID> {
     boolean existsByOriginalFilenameAndUsernameAndStorageType(String folderName, String user, String storage_type);
 
     List<MetaData> findAllByParent(MetaData saveMetaData);
+
+    FolderMetaData findByPathAndUsernameAndStorageType(String path, String username, String folder);
 }

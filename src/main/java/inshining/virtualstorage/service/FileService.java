@@ -34,7 +34,7 @@ public class FileService {
         }
 
         // Save metadata to database
-        fileMetaDataService.save(metaData);
+        fileMetaDataService.createFile(metaData);
 
 
         return new SuccessResponse(true, "File uploaded successfully");

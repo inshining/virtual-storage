@@ -80,7 +80,7 @@ public class FileMetaDataServiceTest {
     public void testUploadFileSuccess() throws IOException {
         UUID uuid = UUID.randomUUID();
         FileMetaData fileMetaData = new FileMetaData(uuid, "testuser", "text/plain", "testfile.txt", 12);
-        when(fileMetaDataService.save(any(FileMetaData.class))).thenReturn(fileMetaData);
+        when(fileMetaDataService.createFile(any(FileMetaData.class))).thenReturn(fileMetaData);
         when(fileMetaDataService.existsById(any())).thenReturn(true);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(true);
 
@@ -91,7 +91,7 @@ public class FileMetaDataServiceTest {
 
     @Test
     public void testUploadFileFailNoWriteFile() throws IOException {
-        when(fileMetaDataService.save(any(FileMetaData.class))).thenReturn(null);
+        when(fileMetaDataService.createFile(any(FileMetaData.class))).thenReturn(null);
         when(fileMetaDataService.existsById(any())).thenReturn(false);
         when(storageService.uploadFile(anyString(), any(MultipartFile.class))).thenReturn(false);
 
@@ -238,6 +238,8 @@ public class FileMetaDataServiceTest {
 
         assertThrows(IOException.class, () -> fileService.downloadFile(filename, username));
     }
+
+
 
     private boolean assertEqualsInputStream(InputStream inputStream1, InputStream inputStream2) throws IOException {
         if (inputStream1 == inputStream2) {

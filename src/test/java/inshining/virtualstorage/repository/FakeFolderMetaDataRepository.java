@@ -11,22 +11,23 @@ import java.util.UUID;
 
 public class FakeFolderMetaDataRepository implements MetaDataRepository{
 
-        private final HashMap<UUID, MetaData> metaDataHashMap = new HashMap<>();
+        private final HashMap<UUID, MetaData> store = new HashMap<>();
 
         @Override
         public MetaData save(MetaData metaData) {
-                return metaDataHashMap.put(metaData.getId(), metaData);
+                return store.put(metaData.getId(), metaData);
         }
 
         @Override
         public Boolean existsById(UUID id) {
-                MetaData metaData = metaDataHashMap.get(id);
+                MetaData metaData = store.get(id);
                 return metaData != null;
         }
 
         @Override
-        public MetaData findByOriginalFilenameAndUsername(String filename, String username) {
-                for (MetaData metaData : metaDataHashMap.values()) {
+        public MetaData findByOriginalFilenameAndUsername(String filePath, String username) {
+                String filename = filePath.substring(filePath.lastIndexOf("/") + 1);
+                for (MetaData metaData : store.values()) {
                         if (metaData.getOriginalFilename().equals(filename) && metaData.getUsername().equals(username)) {
                                 return metaData;
                         }
@@ -36,12 +37,12 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository{
 
         @Override
         public void delete(MetaData metaData) {
-                metaDataHashMap.remove(metaData.getId());
+                store.remove(metaData.getId());
         }
 
         @Override
         public boolean existsByOriginalFilenameAndUsernameInFolders(String folderName, String user) {
-                for (MetaData metaData : metaDataHashMap.values()) {
+                for (MetaData metaData : store.values()) {
                         if (metaData.getOriginalFilename().equals(folderName) && metaData.getUsername().equals(user) && metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
                                 return true;
                         }
@@ -52,11 +53,25 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository{
         @Override
         public List<MetaData> findAllByParent(MetaData metaData) {
                 ArrayList<MetaData> result = new ArrayList<>();
-                for (MetaData data : metaDataHashMap.values()) {
+                for (MetaData data : store.values()) {
                         if (data.getParent() != null && data.getParent().equals(metaData)) {
                                 result.add(data);
                         }
                 }
                 return result;
+        }
+
+        @Override
+        public FolderMetaData findFolderByPathAndUsername(String path, String username) {
+               return store.values().stream()
+                        .filter(metaData -> metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE))
+                        .map(metaData -> (FolderMetaData) metaData)
+                        .filter(folderMetaData -> path.startsWith(folderMetaData.getPath()) && (path.equals("/") || path.endsWith(folderMetaData.getOriginalFilename() + "/")) &&  folderMetaData.getUsername().equals(username))
+                        .findFirst()
+                        .orElse(null);
+        }
+
+        public List<MetaData> findAll(){
+                return new ArrayList<>(store.values());
         }
 }

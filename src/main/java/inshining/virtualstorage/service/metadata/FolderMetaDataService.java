@@ -32,7 +32,9 @@ public class FolderMetaDataService {
             throw new DuplicateFileNameException();
         }
         UUID uuid = UUID.randomUUID();
-        MetaData folder = new FolderMetaData(uuid, user, folderName);
+//        MetaData folder = new FolderMetaData(uuid, user, folderName);
+        FolderMetaData parentFolder = metaDataRepository.findFolderByPathAndUsername(parentPath, user);
+        MetaData folder = new FolderMetaData(uuid, user, folderName, parentPath, parentFolder);
         metaDataRepository.save(folder);
         return new FolderCreateResponse(user, folderName, parentPath);
     }
@@ -56,5 +58,26 @@ public class FolderMetaDataService {
         metaData.setOriginalFilename(changedName);
         MetaData changedMetaData = metaDataRepository.save(metaData);
         return new FolderCreateResponse(changedMetaData.getUsername(), changedMetaData.getOriginalFilename(), changedMetaData.getPath());
+    }
+
+    public boolean deleteFolder(String username, String originalName) {
+        MetaData metaData = metaDataRepository.findByOriginalFilenameAndUsername(originalName, username);
+        if (metaData == null) {
+            return false;
+        }
+        // 탈출 조건: Folder 타입이 아니면 삭제하지 않음
+        if (!metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+            return false;
+        }
+
+        // 하위 폴더 및 파일 삭제
+        List<MetaData> subMetaData = metaDataRepository.findAllByParent(metaData);
+        if (subMetaData.size() > 0) {
+            for (MetaData data : subMetaData) {
+                metaDataRepository.delete(data);
+            }
+        }
+        metaDataRepository.delete(metaData);
+        return true;
     }
 }
