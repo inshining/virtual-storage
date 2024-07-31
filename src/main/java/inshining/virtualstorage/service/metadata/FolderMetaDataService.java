@@ -32,7 +32,6 @@ public class FolderMetaDataService {
             throw new DuplicateFileNameException();
         }
         UUID uuid = UUID.randomUUID();
-//        MetaData folder = new FolderMetaData(uuid, user, folderName);
         FolderMetaData parentFolder = metaDataRepository.findFolderByPathAndUsername(parentPath, user);
         MetaData folder = new FolderMetaData(uuid, user, folderName, parentPath, parentFolder);
         metaDataRepository.save(folder);
