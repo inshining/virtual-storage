@@ -108,4 +108,29 @@ public class MetaDataRepositoryTest {
         Assertions.assertThat(list).contains(saveMetaData3);
     }
 
+    @DisplayName("경로와 사용자로 폴더 조회하기")
+    @Test
+    void findByPathAndUsernameAndStorageTypeTest(){
+        String user = "test";
+        String folderName = "superFolder";
+        FolderMetaData folderMetaData = new FolderMetaData(UUID.randomUUID(), user, folderName);
+        MetaData saveFolderMetaData = metadataJpaRepository.save(folderMetaData);
+        FolderMetaData findFolderMetaData = metadataJpaRepository.findByPathAndUsernameAndStorageType(saveFolderMetaData.getPath(), saveFolderMetaData.getUsername(), "FOLDER");
+
+        MetaData subFolder = new FolderMetaData(UUID.randomUUID(), user, "subFolder", "/testFolder/", findFolderMetaData);
+        metadataJpaRepository.save(subFolder);
+        FolderMetaData findSubFolderMetaData = metadataJpaRepository.findByPathAndUsernameAndStorageType(subFolder.getPath(), subFolder.getUsername(), "FOLDER");
+
+        Assertions.assertThat(findFolderMetaData).isNotNull();
+        Assertions.assertThat(findFolderMetaData.getId()).isEqualTo(folderMetaData.getId());
+        Assertions.assertThat(findFolderMetaData.getUsername()).isEqualTo(folderMetaData.getUsername());
+        Assertions.assertThat(findFolderMetaData.getOriginalFilename()).isEqualTo(folderMetaData.getOriginalFilename());
+        Assertions.assertThat(findFolderMetaData.getPath()).isEqualTo(folderMetaData.getPath());
+
+        Assertions.assertThat(findSubFolderMetaData).isNotNull();
+        Assertions.assertThat(findSubFolderMetaData.getId()).isEqualTo(subFolder.getId());
+        Assertions.assertThat(findSubFolderMetaData.getUsername()).isEqualTo(subFolder.getUsername());
+        Assertions.assertThat(findSubFolderMetaData.getOriginalFilename()).isEqualTo(subFolder.getOriginalFilename());
+        Assertions.assertThat(findSubFolderMetaData.getPath()).isEqualTo(subFolder.getPath());
+    }
 }
