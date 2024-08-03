@@ -64,10 +64,18 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository {
 
         @Override
         public FolderMetaData findFolderByPathAndUsername(String path, String username) {
+                if (path.equals("/")) {
+                        return store.values().stream()
+                                .filter(metaData -> metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE))
+                                .map(metaData -> (FolderMetaData) metaData)
+                                .filter(folderMetaData -> folderMetaData.getPath().equals("/") && folderMetaData.getUsername().equals(username))
+                                .findFirst()
+                                .orElse(null);
+                }
                return store.values().stream()
                         .filter(metaData -> metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE))
                         .map(metaData -> (FolderMetaData) metaData)
-                        .filter(folderMetaData -> path.startsWith(folderMetaData.getPath()) && (path.equals("/") || path.endsWith(folderMetaData.getOriginalFilename() + "/")) &&  folderMetaData.getUsername().equals(username))
+                        .filter(folderMetaData -> path.startsWith(folderMetaData.getPath()) &&  path.endsWith(folderMetaData.getOriginalFilename() + "/") &&  folderMetaData.getUsername().equals(username))
                         .findFirst()
                         .orElse(null);
         }

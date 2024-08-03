@@ -25,15 +25,21 @@ public class FolderMetaDataService {
         String[] path = folderPath.split("/");
         String folderName = path[path.length - 1];
         String parentPath = folderPath.substring(0, folderPath.length() - folderName.length());
-        if (parentPath.length() == 0) {
-            parentPath = "/";
-        }
         if (metaDataRepository.existsByOriginalFilenameAndUsernameInFolders(folderName, user)) {
             throw new DuplicateFileNameException();
         }
         UUID uuid = UUID.randomUUID();
-        FolderMetaData parentFolder = metaDataRepository.findFolderByPathAndUsername(parentPath, user);
-        MetaData folder = new FolderMetaData(uuid, user, folderName, parentPath, parentFolder);
+
+        FolderMetaData parentFolder;
+        MetaData folder;
+        if (parentPath.length() != 0) {
+            parentFolder = metaDataRepository.findFolderByPathAndUsername(parentPath, user);
+            folder = new FolderMetaData(uuid, user, folderName, parentPath, parentFolder);
+        } else{
+            parentPath = "/";
+            folder = new FolderMetaData(uuid, user, folderName, parentPath, null);
+        }
+
         metaDataRepository.save(folder);
         return new FolderCreateResponse(user, folderName, parentPath);
     }
@@ -70,13 +76,25 @@ public class FolderMetaDataService {
         }
 
         // 하위 폴더 및 파일 삭제
-        List<MetaData> subMetaData = metaDataRepository.findAllByParent(metaData);
-        if (subMetaData.size() > 0) {
-            for (MetaData data : subMetaData) {
-                metaDataRepository.delete(data);
-            }
-        }
+        searchSubMetaData(metaData).forEach(data -> metaDataRepository.delete(data));
         metaDataRepository.delete(metaData);
         return true;
+    }
+
+    private List<MetaData> searchSubMetaData(MetaData metaData) {
+        List<MetaData> result = new ArrayList<>();
+        List<MetaData> subMetaDataByParent = metaDataRepository.findAllByParent(metaData);
+
+        if (subMetaDataByParent.size() == 0) {
+            return result;
+        }
+
+        for (MetaData data : subMetaDataByParent) {
+            result.add(data);
+            if (data.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+                result.addAll(searchSubMetaData(data));
+            }
+        }
+        return result;
     }
 }

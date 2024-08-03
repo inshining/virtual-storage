@@ -169,8 +169,8 @@ public class FolderMetaDataServiceTest {
     void deleteSuperFolderThenDeleteSubFolder_Success(){
         //given
         folderMetaDataService.createFolder(username, "root");
-        folderMetaDataService.createFolder(username, "root/folder1");
-        folderMetaDataService.createFolder(username, "root/folder1/folder2");
+        folderMetaDataService.createFolder(username, "/root/folder1");
+        folderMetaDataService.createFolder(username, "/root/folder1/folder2");
 
         //when
         folderMetaDataService.deleteFolder(username, "root/folder1");
@@ -199,6 +199,21 @@ public class FolderMetaDataServiceTest {
         FolderMetaData root = folderMetaDataRepository.findFolderByPathAndUsername("/", username);
         assertEquals(0, folderMetaDataRepository.findAllByParent(root).size());
         assertNotNull(root);
+    }
+
+    @DisplayName("루트 폴더 삭제시 손자 폴더 삭제 성공")
+    @Test
+    void deleteRootFolderThenDeleteGrandSonFolder_Success(){
+        //given
+        folderMetaDataService.createFolder(username, "/root");
+        folderMetaDataService.createFolder(username, "/root/folder1");
+        folderMetaDataService.createFolder(username, "/root/folder1/folder2");
+
+        //when
+        folderMetaDataService.deleteFolder(username, "root");
+
+        //then
+        assertEquals(0, folderMetaDataRepository.findAll().size());
     }
 
     @DisplayName("폴더 아닌 파일 삭제시 실패")
