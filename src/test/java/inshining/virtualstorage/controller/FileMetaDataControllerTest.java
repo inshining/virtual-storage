@@ -1,4 +1,4 @@
-package inshining.virtualstorage.metadata.controller;
+package inshining.virtualstorage.controller;
 
 import inshining.virtualstorage.controller.MetaDataController;
 import inshining.virtualstorage.dto.FileDownloadDTO;

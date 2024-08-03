@@ -1,6 +1,6 @@
 package inshining.virtualstorage;
 
-import inshining.virtualstorage.dto.FolderCreateRequest;
+import inshining.virtualstorage.dto.FolderRequestBody;
 import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.repository.MetaDataRepository;
 import inshining.virtualstorage.util.FileDeletor;
@@ -30,7 +30,7 @@ public class FolderIntegrationTest {
     void testCreateFolder() {
         String username = "testUser";
         String folderName = "testFolder";
-        FolderCreateRequest request = new FolderCreateRequest(username, folderName);
+        FolderRequestBody request = new FolderRequestBody(username, folderName);
 
         ResponseEntity response = restTemplate.postForEntity("/folder/", request, String.class);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
