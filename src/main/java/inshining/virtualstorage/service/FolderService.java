@@ -47,4 +47,12 @@ public class FolderService {
         boolean isSuccess = folderStorageService.renameFolderName(username, folderName, newFolderName);
         return folderCreateResponse;
     }
+
+    public boolean deleteFolder(String username, String folderName) {
+        boolean isSuccess = folderStorageService.deleteFolder(username, folderName);
+        if (isSuccess) {
+            folderMetaDataService.deleteFolder(username, folderName);
+        }
+        return isSuccess;
+    }
 }

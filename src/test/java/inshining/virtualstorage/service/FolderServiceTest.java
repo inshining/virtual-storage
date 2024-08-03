@@ -141,4 +141,35 @@ public class FolderServiceTest {
         FileDeletor.delete(path, 2);
     }
 
+    @DisplayName("폴더 삭제하기")
+    @Test
+    void deleteFolderTest() {
+        // given
+        folderService.createFolder(USERNAME, FOLDER_NAME);
+        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
+
+        // when
+        boolean result = folderService.deleteFolder(USERNAME, FOLDER_NAME);
+
+        // then
+        Assertions.assertTrue(result);
+        Assertions.assertFalse(Files.exists(path));
+
+        Path deletedPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME);
+        FileDeletor.delete(deletedPath, 1);
+    }
+
+    @DisplayName("존재하지 않는 폴더 삭제할 경우 실패")
+    @Test
+    void noExistFolder_delete_Then_Fail() {
+        // given
+        folderService.createFolder(USERNAME, FOLDER_NAME);
+        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
+
+        String noExistFolder = "noExistFolder";
+
+        // when
+        Assertions.assertFalse(folderService.deleteFolder(USERNAME, noExistFolder));
+        FileDeletor.delete(path, 2);
+    }
 }
