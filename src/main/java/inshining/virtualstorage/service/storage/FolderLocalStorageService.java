@@ -51,4 +51,52 @@ public class FolderLocalStorageService implements FolderStorageService {
         }
         return true;
     }
+
+    @Override
+    public boolean deleteFolder(String username, String folderName) {
+        Path path = Paths.get(STORAGE_LOCATION, username, folderName);
+
+        // 폴더 존재하지 않을 때
+        if (!Files.exists(path)) {
+//            System.out.println("Folder does not exist: " + path.toString());
+            return false;
+        }
+        try {
+            deleteFolder(path);
+//            System.out.println("Folder deleted successfully using Files: " + path.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+//            System.out.println("Failed to delete folder using Files: " + path.toString());
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 폴더 내 하위 파일 및 폴더 모두 삭제
+     * @param path
+     * @throws IOException
+     */
+    private void deleteFolder(Path path) throws IOException{
+        // 디렉토리 하위 파일 개수 구하기
+        long subFileCount = Files.list(path).count();
+
+        // 하위 파일이 없으면 더이상 탐색하지 않고 삭제
+        if (subFileCount == 0) {
+            Files.delete(path);
+            return;
+        }
+
+        // 하위 파일이 많으면 재귀적으로(DFS) 삭제
+        if (subFileCount > 0) {
+            for (Path subPath : Files.list(path).toList()) {
+                if (Files.isDirectory(subPath)) {
+                    deleteFolder(subPath);
+                } else{
+                    Files.delete(subPath);
+                }
+            }
+        }
+        Files.delete(path);
+    }
 }
