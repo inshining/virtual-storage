@@ -18,4 +18,8 @@ public interface MetadataJpaRepository extends JpaRepository<MetaData, UUID> {
     List<MetaData> findAllByParent(MetaData saveMetaData);
 
     FolderMetaData findByPathAndUsernameAndStorageType(String path, String username, String folder);
+
+    FolderMetaData existsByUsernameAndPathAndStorageType(String username, String path, String storage_type);
+
+    boolean existsByUsernameAndPathAndOriginalFileNameAndStorageType(String username, String pathName, String folderName, String folder);
 }

@@ -20,4 +20,8 @@ public interface MetaDataRepository {
     List<MetaData> findAllByParent(MetaData metaData);
 
     FolderMetaData findFolderByPathAndUsername(String path, String username);
+
+    FolderMetaData findByUsernameAndPathInFolders(String username, String path);
+
+    boolean existsByUsernameAndPathAndOriginalFilenameInFolder(String username, String pathName, String folderName);
 }

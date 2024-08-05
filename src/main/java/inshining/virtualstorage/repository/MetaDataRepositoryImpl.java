@@ -54,4 +54,14 @@ private final MetadataJpaRepository metadataJpaRepository;
     public FolderMetaData findFolderByPathAndUsername(String path, String username) {
         return metadataJpaRepository.findByPathAndUsernameAndStorageType(path, username, FOLDER);
     }
+
+    @Override
+    public FolderMetaData findByUsernameAndPathInFolders(String username, String path) {
+        return metadataJpaRepository.existsByUsernameAndPathAndStorageType(username, path, FOLDER);
+    }
+
+    @Override
+    public boolean existsByUsernameAndPathAndOriginalFilenameInFolder(String username, String pathName, String folderName) {
+        return metadataJpaRepository.existsByUsernameAndPathAndOriginalFileNameAndStorageType(username, pathName, folderName,FOLDER);
+    }
 }
