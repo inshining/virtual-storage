@@ -2,15 +2,16 @@ package inshining.virtualstorage.storage.service;
 
 import inshining.virtualstorage.service.storage.FolderLocalStorageService;
 import inshining.virtualstorage.util.FileDeletor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 @EnabledOnOs({OS.MAC, OS.LINUX})
 public class FolderStorageServiceTest {
@@ -22,6 +23,28 @@ public class FolderStorageServiceTest {
     private static final String FOLDER_NAME = "testFolder";
     private static final String CHANGED_FOLDER_NAME = "changedFolder";
 
+    @AfterEach
+    void tearDown(){
+        Path path = Paths.get(storageLocation);
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            System.out.println("디렉토리가 성공적으로 삭제되었습니다.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }    }
+
     @DisplayName("폴더 1개 만들기")
     @Test
     void createFolderTest(){
@@ -29,7 +52,6 @@ public class FolderStorageServiceTest {
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder");
         Assertions.assertTrue(Files.exists(path));
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("존재하지 않은 하위 폴더 모두 만들기")
@@ -40,7 +62,6 @@ public class FolderStorageServiceTest {
         Path path = Paths.get(storageLocation, USERNAME, "testFolder1/testFolder2/testFolder3");
         Assertions.assertTrue(Files.exists(path));
 
-        FileDeletor.delete(path, 4);
     }
 
     @DisplayName("이미 존재하는 폴더 만들기")
@@ -61,8 +82,6 @@ public class FolderStorageServiceTest {
         Assertions.assertTrue(Files.exists(path2));
 
         Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
-
-        FileDeletor.delete(path2, 3);
     }
 
     @DisplayName("폴더 이름 변경")
@@ -77,8 +96,6 @@ public class FolderStorageServiceTest {
 
         Path changedPath = Paths.get(storageLocation, USERNAME, CHANGED_FOLDER_NAME);
         Assertions.assertTrue(Files.exists(changedPath));
-
-        FileDeletor.delete(changedPath, 2);
     }
 
     @DisplayName("실패: 존재하지 않는 폴더 이름 변경")
@@ -91,8 +108,6 @@ public class FolderStorageServiceTest {
         Assertions.assertTrue(Files.exists(path));
 
         Assertions.assertFalse(folderLocalStorageService.renameFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
-
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("실패: 존재하지 않는 유저의 폴더 이름 변경")
@@ -105,8 +120,6 @@ public class FolderStorageServiceTest {
         Assertions.assertTrue(Files.exists(path));
 
         Assertions.assertFalse(folderLocalStorageService.renameFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
-
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("성공: 단일 폴더 삭제")
@@ -119,9 +132,6 @@ public class FolderStorageServiceTest {
 
         Assertions.assertTrue(folderLocalStorageService.deleteFolder(USERNAME, FOLDER_NAME));
         Assertions.assertFalse(Files.exists(path));
-
-        Path deletedPath = Paths.get(storageLocation, USERNAME);
-        FileDeletor.delete(deletedPath, 1);
     }
 
     @DisplayName("성공: 하위 폴더 모두 삭제")
@@ -134,9 +144,6 @@ public class FolderStorageServiceTest {
 
         Assertions.assertTrue(folderLocalStorageService.deleteFolder(USERNAME, "testFolder1"));
         Assertions.assertFalse(Files.exists(path));
-
-        Path deletedPath = Paths.get(storageLocation, USERNAME);
-        FileDeletor.delete(deletedPath, 1);
     }
 
     @DisplayName("실패: 존재하지 않는 폴더 삭제")

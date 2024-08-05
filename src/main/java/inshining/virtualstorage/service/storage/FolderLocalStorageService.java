@@ -43,10 +43,10 @@ public class FolderLocalStorageService implements FolderStorageService {
         Path targetPath = Paths.get(STORAGE_LOCATION, username, targetFolderName);
         try {
             Files.move(path, targetPath);
-            System.out.println("Folder renamed successfully using Files: " + path.toString() + " -> " + targetPath.toString());
+//            System.out.println("Folder renamed successfully using Files: " + path.toString() + " -> " + targetPath.toString());
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Failed to rename folder using Files: " + path.toString() + " -> " + targetPath.toString());
+//            System.out.println("Failed to rename folder using Files: " + path.toString() + " -> " + targetPath.toString());
             return false;
         }
         return true;
@@ -70,6 +70,34 @@ public class FolderLocalStorageService implements FolderStorageService {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 파일 이동
+     * @param username
+     * @param source - 이동하게 할 파일(디렉토리) 경로 (파일명, 폴더명 포함)
+     * @param destinationPath - 이동할 경로 (파일명 포함 x)
+     * @return 성공여부
+
+     만약 파일이 존재하지 않으면 false를 반환하고, 파일이 존재하면 파일을 이동하고 true를 반환한다.
+     파일과 폴더 관계없이 이동시키는 메소드이다. unix의 mv와 같은 기능을 한다.
+     */
+    @Override
+    public boolean move(String username, Path source, Path destinationPath) {
+        if (!Files.exists(source)) {
+            return false;
+        }
+
+        Path destination = Paths.get(destinationPath.toString(), source.getFileName().toString());
+        try {
+            Files.move(source, destination);
+//            System.out.println("File moved successfully using Files: " + source.toString() + " -> " + destination.toString());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+//            System.out.println("Failed to move file using Files: " + source.toString() + " -> " + destination.toString());
+        }
+        return false;
     }
 
     /**
