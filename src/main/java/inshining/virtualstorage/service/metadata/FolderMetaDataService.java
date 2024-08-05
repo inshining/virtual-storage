@@ -128,6 +128,12 @@ public class FolderMetaDataService {
         return true;
     }
 
+    /**
+     * 폴더 이동 시 하위 메타 데이터 이동
+     * DFS 방식으로 구현
+     * 재귀적으로 하위 파일이 있으면 이동하여서 설정 변경
+     * @param folderMetaData
+     */
     private void moveSubMetaData(FolderMetaData folderMetaData) {
         List<MetaData> subMetaDataByParent = metaDataRepository.findAllByParent(folderMetaData);
 
