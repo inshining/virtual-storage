@@ -25,7 +25,7 @@ public class FileService {
     @Transactional
     public SuccessResponse uploadFile(MultipartFile file, String username) throws IOException {
 
-        FileMetaData metaData = initFileMetaData(file, username);
+        FileMetaData metaData = new FileMetaData(file, username);
 
         boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
 
@@ -84,13 +84,5 @@ public class FileService {
         return new FileDownloadDTO(inputStream, metaData.getOriginalFilename(), MediaType.parseMediaType(metaData.getContentType()), metaData.getSize());
     }
 
-
-    private FileMetaData initFileMetaData(MultipartFile file, String username){
-        UUID uuid1 = UUID.randomUUID();
-        String contentType = file.getContentType();
-        String originalFilename = file.getOriginalFilename();
-        long size = file.getSize();
-        return new FileMetaData(uuid1, username, contentType, originalFilename, size);
-    }
 
 }
