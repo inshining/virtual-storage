@@ -8,6 +8,7 @@ import inshining.virtualstorage.util.FakeFolderMetaDataRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +30,7 @@ public class FileMetaDataServiceTest {
         fileMetaDataService.createFile(fileMetaData);
 
         // when
-        fileMetaDataService.moveFile(username, sourceFilename, destinationPath);
+        fileMetaDataService.moveFile(username, sourceFilename, Paths.get(destinationPath));
 
         // then
         MetaData finedMetaData = folderMetaDataRepository.findByOriginalFilenameAndUsername(sourceFilename, username);
@@ -50,7 +51,7 @@ public class FileMetaDataServiceTest {
         folderMetaDataService.createFolder(username, destinationPath);
 
         // when
-        fileMetaDataService.moveFile(username, sourceFilename, destinationPath);
+        fileMetaDataService.moveFile(username, sourceFilename, Paths.get(destinationPath));
 
         // then
         MetaData finedMetaData = folderMetaDataRepository.findByOriginalFilenameAndUsername(sourceFilename, username);
@@ -70,7 +71,7 @@ public class FileMetaDataServiceTest {
         FileMetaData fileMetaData = new FileMetaData(UUID.randomUUID(), username, "text/plain", sourceFilename, 8, "/", null);
 
         // when
-        boolean result = fileMetaDataService.moveFile(username, sourceFilename, destinationPath);
+        boolean result = fileMetaDataService.moveFile(username, sourceFilename, Paths.get(destinationPath));
         assertFalse(result);
     }
 }

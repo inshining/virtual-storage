@@ -35,10 +35,8 @@ public class FileMetaDataService {
         return metadataRepository.existsById(uuid);
     }
 
-    public boolean moveFile(String username, String sourceFilename, String destinationPath) {
+    public boolean moveFile(String username, String sourceFilename, Path destinationPath) {
         MetaData metaData = findByOriginalFilenameAndUsername(sourceFilename, username);
-
-        Path dPath = Paths.get(destinationPath);
 
         // 파일 존재하는지 여부 확인
         if (metaData == null) {
@@ -46,7 +44,7 @@ public class FileMetaDataService {
         }
 
         // 경로 변경
-        metaData.setPath(destinationPath);
+        metaData.setPath(destinationPath.toString());
         metadataRepository.save(metaData);
 
         // 바꿀 파일명
