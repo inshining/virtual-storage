@@ -97,4 +97,8 @@ public class FakeFolderMetaDataRepository implements MetaDataRepository {
         public List<MetaData> findAll(){
                 return new ArrayList<>(store.values());
         }
+
+            public void clear() {
+                store.clear();
+            }
 }

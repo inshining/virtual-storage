@@ -5,12 +5,16 @@ import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.FolderMetaData;
+import inshining.virtualstorage.model.MetaData;
 import inshining.virtualstorage.util.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.metadata.FileMetaDataService;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +30,11 @@ public class FolderMetaDataServiceTest {
     private static final String username = "username1";
     private static final String originalName = "originName1";
     private static final String changedName = "changedName";
+
+    @AfterEach
+    void tearDown(){
+        folderMetaDataRepository.clear();
+    }
 
     @DisplayName("폴더 생성")
     @Test
@@ -242,4 +251,99 @@ public class FolderMetaDataServiceTest {
         assertFalse(result);
     }
 
+    @DisplayName("성공: 폴더 이동")
+    @Test
+    void moveFolderSuccess(){
+        // given
+        Path sourcePath = Paths.get(username, "testFolder1/testFolder2/testFolder3/");
+        Path destPath = Paths.get(username, "testFolder4/testFolder5/");
+        folderMetaDataService.createFolder(username, sourcePath.toString());
+        folderMetaDataService.createFolder(username, destPath.toString());
+        FolderMetaData source = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder3", username);
+        FolderMetaData dest = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder5", username);
+
+        //when
+        assertTrue(folderMetaDataService.move(username, sourcePath, destPath));
+
+        // then
+        assertEquals(dest, source.getParent());
+    }
+
+    @DisplayName("성공: 폴더 하위 파일 모두 이동")
+    @Test
+    void moveSubFilesSuccess(){
+        // given
+        Path sourcePath = Paths.get(username, "testFolder1/testFolder2/testFolder3/");
+        Path destPath = Paths.get(username, "testFolder4/testFolder5/");
+        folderMetaDataService.createFolder(username, sourcePath.toString());
+        folderMetaDataService.createFolder(username, destPath.toString());
+
+        FolderMetaData source = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder3", username);
+        FolderMetaData dest = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder5", username);
+
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), username,  "text/plain", "file1",100, sourcePath.toString(), source ));
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), username,  "text/plain", "file2",100, sourcePath.toString(), source ));
+        fileMetaDataService.createFile(new FileMetaData(UUID.randomUUID(), username,  "text/plain", "file3",100, sourcePath.toString(), source ));
+
+        //when
+        assertTrue(folderMetaDataService.move(username, sourcePath, destPath));
+
+
+        // then
+        MetaData file1 = folderMetaDataRepository.findByOriginalFilenameAndUsername("file1", username);
+        MetaData file2 = folderMetaDataRepository.findByOriginalFilenameAndUsername("file2", username);
+        MetaData file3 = folderMetaDataRepository.findByOriginalFilenameAndUsername("file3", username);
+
+        MetaData toBeFolder = folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder3", username);
+
+        assertEquals(dest, source.getParent());
+        assertEquals(3, folderMetaDataRepository.findAllByParent(source).size());
+
+        Path destinedPath = Paths.get(dest.getPath(), dest.getOriginalFilename(), source.getOriginalFilename());
+        Path sourcePath2 = Paths.get(toBeFolder.getPath(), toBeFolder.getOriginalFilename());
+
+        assertEquals(destinedPath.toString(), sourcePath2.toString());
+        assertEquals(destinedPath.toString(), file1.getPath());
+        assertEquals(destinedPath.toString(), file1.getPath());
+        assertEquals(destinedPath.toString(), file2.getPath());
+        assertEquals(destinedPath.toString(), file3.getPath());
+    }
+
+    @DisplayName("성공: 3중 하위 폴더 전체 옮기기")
+    @Test
+    void moveSubFolderSuccess(){
+        // given
+        Path sourcePath = Paths.get(username, "testFolder1/testFolder2/testFolder3/");
+        Path destPath = Paths.get(username, "testFolder4/testFolder5/");
+        folderMetaDataService.createFolder(username, sourcePath.toString());
+        folderMetaDataService.createFolder(username, destPath.toString());
+
+        Path path6 = Paths.get(sourcePath.toString() , "testFolder6");
+        Path path7 = Paths.get(path6.toString() , "testFolder7");
+        folderMetaDataService.createFolder(username, path6.toString());
+        folderMetaDataService.createFolder(username, path7.toString());
+
+        //when
+        assertTrue(folderMetaDataService.move(username, sourcePath, destPath));
+
+        // then
+        FolderMetaData toBeFolder = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder7", username);
+        FolderMetaData toBeFolder2 = (FolderMetaData) folderMetaDataRepository.findByOriginalFilenameAndUsername("testFolder6", username);
+
+        assertEquals(toBeFolder.getParent(), toBeFolder2);
+        assertTrue(toBeFolder.getPath().startsWith(destPath.toString()));
+        assertTrue(toBeFolder2.getPath().startsWith(destPath.toString()));
+    }
+
+    @DisplayName("실패: 폴더 이동 - 폴더가 존재하지 않는 경우")
+    @Test
+    void moveFolderFail(){
+        // given
+        Path sourcePath = Paths.get(username, "testFolder1/testFolder2/testFolder3/");
+        Path destPath = Paths.get(username, "testFolder4/testFolder5/");
+        folderMetaDataService.createFolder(username, sourcePath.toString());
+
+        //when
+        assertFalse(folderMetaDataService.move(username, sourcePath, destPath));
+    }
 }

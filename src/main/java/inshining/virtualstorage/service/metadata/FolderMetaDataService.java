@@ -11,6 +11,8 @@ import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -96,5 +98,53 @@ public class FolderMetaDataService {
             }
         }
         return result;
+    }
+
+    /**
+     * 폴더 이동
+     * @param sourcePath
+     * @param destPath
+     * @return
+     *
+     */
+    public boolean move(String username, Path sourcePath, Path destPath) {
+        // 메타 데이터 조회
+        FolderMetaData sourceFolder = (FolderMetaData) metaDataRepository.findByOriginalFilenameAndUsername(sourcePath.getFileName().toString(), username);
+        FolderMetaData destFolder = (FolderMetaData) metaDataRepository.findByOriginalFilenameAndUsername(destPath.getFileName().toString(), username);
+
+        // 폴더가 존재하지 않을 경우
+        if (sourceFolder == null || destFolder == null) {
+            return false;
+        }
+
+        // 폴더 이동
+        sourceFolder.setParent(destFolder);
+        sourceFolder.setPath(destPath.toString());
+
+        moveSubMetaData(sourceFolder);
+
+        metaDataRepository.save(sourceFolder);
+
+        return true;
+    }
+
+    private void moveSubMetaData(FolderMetaData folderMetaData) {
+        List<MetaData> subMetaDataByParent = metaDataRepository.findAllByParent(folderMetaData);
+
+        if (subMetaDataByParent.size() == 0) {
+            return;
+        }
+
+        Path parentPath = Paths.get(folderMetaData.getPath(), folderMetaData.getOriginalFilename());
+
+        for (MetaData data : subMetaDataByParent) {
+            data.setParent(folderMetaData);
+            data.setPath(parentPath.toString());
+            metaDataRepository.save(data);
+            if (data.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+                FolderMetaData folder = (FolderMetaData) data;
+                moveSubMetaData(folder);
+            }
+        }
     }
 }
