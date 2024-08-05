@@ -90,6 +90,9 @@ public class FolderLocalStorageService implements FolderStorageService {
 
         Path destination = Paths.get(destinationPath.toString(), source.getFileName().toString());
         try {
+            if (!Files.exists(destination)){
+                Files.createDirectories(destination.getParent());
+            }
             Files.move(source, destination);
 //            System.out.println("File moved successfully using Files: " + source.toString() + " -> " + destination.toString());
             return true;

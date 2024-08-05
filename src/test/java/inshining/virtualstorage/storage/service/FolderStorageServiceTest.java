@@ -3,7 +3,6 @@ package inshining.virtualstorage.storage.service;
 import inshining.virtualstorage.service.storage.FolderLocalStorageService;
 import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -12,6 +11,8 @@ import org.junit.jupiter.api.condition.OS;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @EnabledOnOs({OS.MAC, OS.LINUX})
 public class FolderStorageServiceTest {
@@ -40,7 +41,6 @@ public class FolderStorageServiceTest {
                     return FileVisitResult.CONTINUE;
                 }
             });
-            System.out.println("디렉토리가 성공적으로 삭제되었습니다.");
         } catch (IOException e) {
             e.printStackTrace();
         }    }
@@ -48,108 +48,226 @@ public class FolderStorageServiceTest {
     @DisplayName("폴더 1개 만들기")
     @Test
     void createFolderTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder"));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder"));
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder");
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
     }
 
     @DisplayName("존재하지 않은 하위 폴더 모두 만들기")
     @Test
     void createSubFoldersTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder1/testFolder2/testFolder3"));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder1/testFolder2/testFolder3"));
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder1/testFolder2/testFolder3");
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
     }
 
     @DisplayName("이미 존재하는 폴더 만들기")
     @Test
     void createExistingFolderTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder"));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder"));
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder");
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
+        assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
 
         FileDeletor.delete(path, 2);
 
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME,"testFolder/testFolder2"));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME,"testFolder/testFolder2"));
 
         Path path2 = Paths.get(storageLocation, USERNAME,"testFolder/testFolder2");
-        Assertions.assertTrue(Files.exists(path2));
+        assertTrue(Files.exists(path2));
 
-        Assertions.assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
+        assertFalse(folderLocalStorageService.createFolder(USERNAME,"testFolder"));
     }
 
     @DisplayName("폴더 이름 변경")
     @Test
     void changeFolderNameTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
 
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertTrue(folderLocalStorageService.renameFolderName(USERNAME, FOLDER_NAME, CHANGED_FOLDER_NAME));
+        assertTrue(folderLocalStorageService.renameFolderName(USERNAME, FOLDER_NAME, CHANGED_FOLDER_NAME));
 
         Path changedPath = Paths.get(storageLocation, USERNAME, CHANGED_FOLDER_NAME);
-        Assertions.assertTrue(Files.exists(changedPath));
+        assertTrue(Files.exists(changedPath));
     }
 
     @DisplayName("실패: 존재하지 않는 폴더 이름 변경")
     @Test
     void noExistFolderNameTest(){
         String noExistFolderName = "noExistFolder";
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
 
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertFalse(folderLocalStorageService.renameFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
+        assertFalse(folderLocalStorageService.renameFolderName(USERNAME, noExistFolderName, CHANGED_FOLDER_NAME));
     }
 
     @DisplayName("실패: 존재하지 않는 유저의 폴더 이름 변경")
     @Test
     void noExistUsernameTest(){
         String noExistUsername = "noExistUser";
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME ));
 
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertFalse(folderLocalStorageService.renameFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
+        assertFalse(folderLocalStorageService.renameFolderName(noExistUsername, FOLDER_NAME, CHANGED_FOLDER_NAME));
     }
 
     @DisplayName("성공: 단일 폴더 삭제")
     @Test
     void deleteFolderTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, FOLDER_NAME));
 
         Path path = Paths.get(storageLocation, USERNAME, FOLDER_NAME);
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertTrue(folderLocalStorageService.deleteFolder(USERNAME, FOLDER_NAME));
-        Assertions.assertFalse(Files.exists(path));
+        assertTrue(folderLocalStorageService.deleteFolder(USERNAME, FOLDER_NAME));
+        assertFalse(Files.exists(path));
     }
 
     @DisplayName("성공: 하위 폴더 모두 삭제")
     @Test
     void deleteSubFoldersTest(){
-        Assertions.assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder1/testFolder2/testFolder3"));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, "testFolder1/testFolder2/testFolder3"));
 
         Path path = Paths.get(storageLocation, USERNAME, "testFolder1/testFolder2/testFolder3");
-        Assertions.assertTrue(Files.exists(path));
+        assertTrue(Files.exists(path));
 
-        Assertions.assertTrue(folderLocalStorageService.deleteFolder(USERNAME, "testFolder1"));
-        Assertions.assertFalse(Files.exists(path));
+        assertTrue(folderLocalStorageService.deleteFolder(USERNAME, "testFolder1"));
+        assertFalse(Files.exists(path));
     }
 
     @DisplayName("실패: 존재하지 않는 폴더 삭제")
     @Test
     void noExistFolderDeleteTest(){
         String noExistFolderName = "noExistFolder";
-        Assertions.assertFalse(folderLocalStorageService.deleteFolder(USERNAME, noExistFolderName));
+        assertFalse(folderLocalStorageService.deleteFolder(USERNAME, noExistFolderName));
+    }
+
+    @DisplayName("성공: 폴더 이동 하기 (파일 이동)")
+    @Test
+    void moveFileFolderTest(){
+        // given
+        String sourcePath = "/";
+        String destinationPath = "testFolder/";
+        String filename = "testFile.txt";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath));
+
+        Path source = Paths.get(storageLocation, USERNAME, sourcePath);
+        assertTrue(Files.exists(source));
+
+        // 파일 만들기
+        Path file = Paths.get(storageLocation, USERNAME, filename);
+        try {
+            Files.createFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Path destination = Paths.get(storageLocation, USERNAME, destinationPath);
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, destinationPath));
+
+        //when
+        assertTrue(folderLocalStorageService.move(USERNAME, file, destination));
+
+        assertTrue(Files.exists(destination));
+    }
+
+    @DisplayName("성공: 3중 이상 폴더일 경우 이동")
+    @Test
+    void moveSubFoldersTest(){
+        // given
+        String sourcePath = "testFolder1/testFolder2/testFolder3/";
+        String destinationPath = "testFolder4/testFolder5/testFolder6/";
+        String filename = "testFile.txt";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, destinationPath));
+
+        Path source = Paths.get(storageLocation, USERNAME, sourcePath);
+        Path dest = Paths.get(storageLocation, USERNAME, destinationPath);
+        assertTrue(Files.exists(source));
+        assertTrue(Files.exists(dest));
+
+        // 파일 만들기
+        Path file = Paths.get(source.toString(),filename);
+        try {
+            Files.createFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //when
+        assertTrue(folderLocalStorageService.move(USERNAME, file, dest));
+
+        // then
+        assertFalse(Files.exists(file));
+        assertTrue(Files.exists(dest));
+
+        Path destFilePath = Paths.get(dest.toString(), filename);
+        assertTrue(Files.exists(destFilePath));
+
+    }
+
+    @DisplayName("성공: dest 폴더가 없을 경우 만들어서 이동")
+    @Test
+    void moveNoDestExistFolder_Then_Success(){
+        // given
+        String sourcePath = "testFolder1/testFolder2/testFolder3/";
+        String destinationPath = "testFolder4/testFolder5/testFolder6/";
+        String filename = "testFile.txt";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath));
+
+        Path source = Paths.get(storageLocation, USERNAME, sourcePath);
+        assertTrue(Files.exists(source));
+
+        // 파일 만들기
+        Path file = Paths.get(source.toString(),filename);
+        try {
+            Files.createFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Path dest = Paths.get(storageLocation, USERNAME, destinationPath);
+
+        // when
+        assertTrue(folderLocalStorageService.move(USERNAME, file, dest));
+
+        // then
+        assertFalse(Files.exists(file));
+        assertTrue(Files.exists(dest));
+
+        Path destFilePath = Paths.get(dest.toString(), filename);
+        assertTrue(Files.exists(destFilePath));
+
+    }
+    @DisplayName("실패: 존재하지 않는 파일 이동")
+    @Test
+    void noExistFileMoveTest(){
+        String sourcePath = "/";
+        String destinationPath = "testFolder/";
+        String filename = "testFile.txt";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath));
+
+        Path destination = Paths.get(storageLocation, USERNAME, destinationPath);
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, destinationPath));
+
+        Path file = Paths.get(storageLocation, USERNAME, filename);
+
+        assertFalse(folderLocalStorageService.move(USERNAME, file, destination));
     }
 }
