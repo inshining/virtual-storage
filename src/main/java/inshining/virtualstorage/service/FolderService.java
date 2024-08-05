@@ -5,7 +5,7 @@ import inshining.virtualstorage.dto.FolderCreateResponse;
 import inshining.virtualstorage.dto.FolderMetaResponse;
 import inshining.virtualstorage.exception.NoExistFolderException;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
-import inshining.virtualstorage.service.storage.FolderStorageService;
+import inshining.virtualstorage.service.storage.LocalStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class FolderService {
     private final FolderMetaDataService folderMetaDataService;
-    private final FolderStorageService folderStorageService;
+    private final LocalStorageService folderStorageService;
 
     public FolderCreateResponse createFolder(String user, String folder){
         FolderCreateResponse folderCreateResponse;
         try {
+            folderStorageService.createFolder(user, folder);
             folderCreateResponse = folderMetaDataService.createFolder(user, folder);
         } catch (DuplicateFileNameException n) {
             throw n;
@@ -25,7 +26,6 @@ public class FolderService {
             e.printStackTrace();
             throw e;
         }
-        folderStorageService.createFolder(user, folder);
         return folderCreateResponse;
     }
 

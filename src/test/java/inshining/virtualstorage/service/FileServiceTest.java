@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 public class FileServiceTest {
@@ -238,6 +239,27 @@ public class FileServiceTest {
 
         assertThrows(IOException.class, () -> fileService.downloadFile(filename, username));
     }
+
+//    @DisplayName("단일 파일 이동")
+//    @Test
+//    void moveSingleFile() throws IOException {
+//        String filename = "test.txt";
+//        String username = "testUser";
+//        String newFolder = "newFolder";
+//        UUID fileId = UUID.randomUUID();
+//        FileMetaData fileMetaData = new FileMetaData(fileId, username, "text/plain", filename, 100L);
+//        String oldPath = fileMetaData.getStoragePath();
+//        String newPath = "testUser/" + newFolder + "/" + filename;
+//        Path destPath = Paths.get(newPath);
+//
+//        when(fileMetaDataService.moveFile(username, filename, destPath)).thenReturn(true);
+//        when(storageService.move(oldPath, newPath)).thenReturn(true);
+//
+//        SuccessResponse response = fileService.moveFile(filename, username, newFolder);
+//
+//        assertTrue(response.isSuccess());
+//        assertEquals("File moved successfully", response.message());
+//    }
 
 
     private boolean assertEqualsInputStream(InputStream inputStream1, InputStream inputStream2) throws IOException {

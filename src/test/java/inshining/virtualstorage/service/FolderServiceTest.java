@@ -8,7 +8,7 @@ import inshining.virtualstorage.model.FileMetaData;
 import inshining.virtualstorage.model.FolderMetaData;
 import inshining.virtualstorage.util.FakeFolderMetaDataRepository;
 import inshining.virtualstorage.service.metadata.FileMetaDataService;
-import inshining.virtualstorage.service.storage.FolderLocalStorageService;
+import inshining.virtualstorage.service.storage.LocalStorageService;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
 import inshining.virtualstorage.util.FileDeletor;
 import org.junit.jupiter.api.Assertions;
@@ -24,8 +24,8 @@ public class FolderServiceTest {
     private static final String LOCAL_STORAGE_PATH = "upload/";
     private final FakeFolderMetaDataRepository folderMetaDataRepository = new FakeFolderMetaDataRepository();
     private final FolderMetaDataService folderMetaDataService = new FolderMetaDataService(folderMetaDataRepository);
-    private final FolderLocalStorageService folderLocalStorageService = new FolderLocalStorageService();
-    private final FolderService folderService = new FolderService(folderMetaDataService, folderLocalStorageService);
+    private final LocalStorageService localStorageService = new LocalStorageService();
+    private final FolderService folderService = new FolderService(folderMetaDataService, localStorageService);
 
     private final FileMetaDataService fileMetaDataService = new FileMetaDataService(folderMetaDataRepository);
     
