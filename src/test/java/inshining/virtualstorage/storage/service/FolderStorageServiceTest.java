@@ -28,7 +28,7 @@ public class FolderStorageServiceTest {
     void tearDown(){
         Path path = Paths.get(storageLocation);
         try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
@@ -269,5 +269,66 @@ public class FolderStorageServiceTest {
         Path file = Paths.get(storageLocation, USERNAME, filename);
 
         assertFalse(folderLocalStorageService.move(USERNAME, file, destination));
+    }
+
+    @DisplayName("성공: 단일 폴더 이동 하기 (폴더 이동)")
+    @Test
+    void moveFolderTest(){
+        // given
+        String sourcePath = "testFolder1/";
+        String destinationPath = "testFolder2/";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, destinationPath));
+
+        Path source = Paths.get(storageLocation, USERNAME, sourcePath);
+        Path dest = Paths.get(storageLocation, USERNAME, destinationPath);
+        assertTrue(Files.exists(source));
+        assertTrue(Files.exists(dest));
+
+        //when
+        assertTrue(folderLocalStorageService.move(USERNAME, source, dest));
+
+        // then
+        assertFalse(Files.exists(source));
+        assertTrue(Files.exists(dest));
+
+        Path destPath = Paths.get(dest.toString(), sourcePath);
+        assertTrue(Files.exists(destPath));
+    }
+
+    @DisplayName("성공: 3중 이상 폴더일 경우 이동")
+    @Test
+    void moveSubFolderTest(){
+        // given
+        String origin = "testFolder1/testFolder2/testFolder3/";
+        Path sourcePath = Paths.get(origin);
+        String destinationPath = "testFolder4";
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, sourcePath.toString()));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, destinationPath));
+
+        Path source = Paths.get(storageLocation, USERNAME, sourcePath.toString());
+        Path dest = Paths.get(storageLocation, USERNAME, destinationPath);
+        assertTrue(Files.exists(source));
+        assertTrue(Files.exists(dest));
+
+        Path testFolder5 = Paths.get(sourcePath.toString(), "testFolder5");
+        Path testFolder6 = Paths.get(testFolder5.toString(), "testFolder6");
+
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, testFolder5.toString()));
+        assertTrue(folderLocalStorageService.createFolder(USERNAME, testFolder6.toString()));
+
+        //when
+        assertTrue(folderLocalStorageService.move(USERNAME, source, dest));
+
+        // then
+        assertFalse(Files.exists(source));
+        assertTrue(Files.exists(dest));
+
+        Path destFolder6 = Paths.get(dest.toString(), "testFolder3", "testFolder5", "testFolder6");
+        assertTrue(Files.exists(destFolder6));
+        assertTrue(Files.exists(destFolder6.getParent()));
+        assertTrue(Files.exists(destFolder6.getParent().getParent()));
     }
 }
