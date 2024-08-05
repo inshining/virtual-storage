@@ -62,6 +62,6 @@ private final MetadataJpaRepository metadataJpaRepository;
 
     @Override
     public boolean existsByUsernameAndPathAndOriginalFilenameInFolder(String username, String pathName, String folderName) {
-        return metadataJpaRepository.existsByUsernameAndPathAndOriginalFileNameAndStorageType(username, pathName, folderName,FOLDER);
+        return metadataJpaRepository.existsByUsernameAndPathAndOriginalFilenameAndStorageType(username, pathName, folderName,FOLDER);
     }
 }

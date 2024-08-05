@@ -21,5 +21,5 @@ public interface MetadataJpaRepository extends JpaRepository<MetaData, UUID> {
 
     FolderMetaData existsByUsernameAndPathAndStorageType(String username, String path, String storage_type);
 
-    boolean existsByUsernameAndPathAndOriginalFileNameAndStorageType(String username, String pathName, String folderName, String folder);
+    boolean existsByUsernameAndPathAndOriginalFilenameAndStorageType(String username, String pathName, String folderName, String folder);
 }
