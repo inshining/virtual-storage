@@ -11,13 +11,14 @@ import inshining.virtualstorage.service.metadata.FileMetaDataService;
 import inshining.virtualstorage.service.storage.LocalStorageService;
 import inshining.virtualstorage.service.metadata.FolderMetaDataService;
 import inshining.virtualstorage.util.FileDeletor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.UUID;
 
 public class FolderServiceTest {
@@ -32,6 +33,26 @@ public class FolderServiceTest {
     private static  final String USERNAME = "user";
     private static  final String FOLDER_NAME = "folder1";
 
+    @AfterEach
+    void tearDown(){
+        Path path = Paths.get(LOCAL_STORAGE_PATH);
+        try {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }    }
 
     @DisplayName("폴더 생성하기")
     @Test
@@ -58,7 +79,6 @@ public class FolderServiceTest {
         Assertions.assertEquals("folder2", response2.folderName());
         Assertions.assertEquals("folder1/", response2.path());
         Assertions.assertTrue(Files.exists(path));
-        FileDeletor.delete(path, 3);
     }
 
     @DisplayName("동일 폴더 중복 생성시 에러 발생")
@@ -73,7 +93,6 @@ public class FolderServiceTest {
         // then
         Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
         Assertions.assertTrue(Files.exists(path));
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("폴더 하위 파일들 리스트 가져오기")
@@ -81,7 +100,6 @@ public class FolderServiceTest {
     void getFilesInFolderTest() {
         // given
         folderService.createFolder(USERNAME, FOLDER_NAME);
-        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
 
         // when
         FolderMetaResponse response = folderService.getMetaDataInFolder(USERNAME, FOLDER_NAME);
@@ -100,8 +118,6 @@ public class FolderServiceTest {
 
         response = folderService.getMetaDataInFolder(USERNAME, FOLDER_NAME);
         Assertions.assertEquals(3, response.metaDataDTOS().size());
-        FileDeletor.delete(path, 2);
-
     }
     
     @DisplayName("폴더 이름변경하기")
@@ -122,8 +138,6 @@ public class FolderServiceTest {
         Assertions.assertFalse(Files.exists(path));
         Assertions.assertEquals(USERNAME, response.ownerName());
         Assertions.assertEquals(newFolderName, response.folderName());
-
-        FileDeletor.delete(newPath, 2);
     }
 
     @DisplayName("존재하지 않는 폴더 이름 변경할 경우 실패")
@@ -131,14 +145,12 @@ public class FolderServiceTest {
     void noExistFolder_rename_Then_Fail() {
         // given
         folderService.createFolder(USERNAME, FOLDER_NAME);
-        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
 
         String noExistFolder = "noExistFolder";
 
         // when
         String newFolderName = "newFolderName";
         Assertions.assertThrows(NoExistFolderException.class, () -> folderService.renameFolder(USERNAME, noExistFolder, newFolderName));
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("폴더 삭제하기")
@@ -154,9 +166,6 @@ public class FolderServiceTest {
         // then
         Assertions.assertTrue(result);
         Assertions.assertFalse(Files.exists(path));
-
-        Path deletedPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME);
-        FileDeletor.delete(deletedPath, 1);
     }
 
     @DisplayName("존재하지 않는 폴더 삭제할 경우 실패")
@@ -164,13 +173,11 @@ public class FolderServiceTest {
     void noExistFolder_delete_Then_Fail() {
         // given
         folderService.createFolder(USERNAME, FOLDER_NAME);
-        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
 
         String noExistFolder = "noExistFolder";
 
         // when
         Assertions.assertFalse(folderService.deleteFolder(USERNAME, noExistFolder));
-        FileDeletor.delete(path, 2);
     }
 
     @DisplayName("성공 폴더 이동하기")
@@ -191,8 +198,6 @@ public class FolderServiceTest {
         Assertions.assertTrue(result);
         Assertions.assertFalse(Files.exists(path));
         Assertions.assertTrue(Files.exists(destPath));
-
-        FileDeletor.delete(destPath, 2);
     }
 
 }
