@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.when;
@@ -42,7 +43,7 @@ public class FolderControllerTest {
 
         mockMvc.perform(post("/folder/")
                         .content(content)
-                        .contentType("application/json"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ownerName").value(folderCreateResponse.ownerName()))
                 .andExpect(jsonPath("$.folderName").value(folderCreateResponse.folderName()))
@@ -74,7 +75,7 @@ public class FolderControllerTest {
 
         mockMvc.perform(put("/folder/")
                         .content(content)
-                        .contentType("application/json"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.ownerName").value(folderCreateResponse.ownerName()))
                 .andExpect(jsonPath("$.folderName").value(folderCreateResponse.folderName()))
@@ -107,7 +108,7 @@ public class FolderControllerTest {
 
         mockMvc.perform(delete("/folder/")
                         .content(content)
-                        .contentType("application/json"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -122,7 +123,7 @@ public class FolderControllerTest {
 
         mockMvc.perform(delete("/folder/")
                         .content(content)
-                        .contentType("application/json"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -139,7 +140,7 @@ public class FolderControllerTest {
 
         mockMvc.perform(put("/folder/move")
                         .content(content)
-                        .contentType("application/json"))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
