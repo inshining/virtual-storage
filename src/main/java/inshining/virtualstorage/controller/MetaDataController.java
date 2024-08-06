@@ -67,7 +67,7 @@ public class MetaDataController {
                 .body(resource);
     }
 
-    @PutMapping("/move")
+    @PostMapping("/move")
     public ResponseEntity<String> move(@RequestBody MoveRequest moveRequest) {
         String username = moveRequest.user();
         String srcPath = moveRequest.srcPath();

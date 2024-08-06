@@ -14,10 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Transactional
@@ -30,7 +28,9 @@ public class FileService {
 
         FileMetaData metaData = new FileMetaData(file, username);
 
-        boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
+        Path writePath = Paths.get(metaData.getUsername(), metaData.getOriginalFilename());
+
+        boolean isWriteFile = storageService.uploadFile(writePath.toString(), file);
 
         if (!isWriteFile){
             return new SuccessResponse(false, "Failed to upload file: File is not written");
@@ -93,7 +93,7 @@ public class FileService {
      * @param username : 사용자 이름 (파일 소유자)
      * @param srcFileName : 파일 이름 (옮기려는 파일 이름)
      * @param destFolderName : 새로운 폴더 이름 (옮기고자 하는 파일 이름)
-     * @return
+     * @return 파일이 정상적으로 옮겨지면 SuccessResponse true를 리턴한다.
      */
     public SuccessResponse moveFile(String username, String srcFileName, String destFolderName) {
         Path destPath = Paths.get(destFolderName);
@@ -106,8 +106,9 @@ public class FileService {
         }
 
         // Move file in real storage
-        Path realSrcPath = Paths.get(username, srcFileName);
-        Path realDestPath = Paths.get(username, destFolderName);
+        String temp = "upload";
+        Path realSrcPath = Paths.get(temp, username, srcFileName);
+        Path realDestPath = Paths.get(temp, username, destFolderName);
 
         boolean isStorageMove = storageService.move(username, realSrcPath, realDestPath);
 

@@ -138,7 +138,7 @@ public class FolderControllerTest {
 
         when(folderService.move(username, folderName, targetFolderName)).thenReturn(true);
 
-        mockMvc.perform(put("/folder/move")
+        mockMvc.perform(post("/folder/move")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

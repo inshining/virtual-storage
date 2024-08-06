@@ -65,7 +65,7 @@ public class FolderController {
         }
     }
 
-    @PutMapping("/move")
+    @PostMapping("/move")
     public ResponseEntity<String> move(@RequestBody MoveRequest request) {
         String user = request.user();
         String srcPath = request.srcPath();

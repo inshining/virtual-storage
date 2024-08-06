@@ -1,9 +1,7 @@
 package inshining.virtualstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import inshining.virtualstorage.controller.MetaDataController;
 import inshining.virtualstorage.dto.FileDownloadDTO;
-import inshining.virtualstorage.dto.FolderRequestBody;
 import inshining.virtualstorage.dto.MoveRequest;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.service.FileService;
@@ -190,7 +188,7 @@ public class FileMetaDataControllerTest {
 
         String content = objectMapper.writeValueAsString(new MoveRequest(user, srcPath, destPath));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/file/move")
+        mockMvc.perform(MockMvcRequestBuilders.post("/file/move")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

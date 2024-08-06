@@ -24,6 +24,9 @@ public class LocalStorageService implements StorageService {
     @Override
     public boolean uploadFile(String storagePath, MultipartFile file) throws IOException {
         Path path = Paths.get(STORAGE_LOCATION, storagePath);
+        if (!Files.exists(path.getParent())){
+            Files.createDirectories(path.getParent());
+        }
         Files.write(path, file.getBytes());
         return Files.exists(path);
     }
@@ -103,7 +106,7 @@ public class LocalStorageService implements StorageService {
 
     /**
      * 파일 이동
-     * @param username
+     * @param username 이용자 이름을 넣어야 한다.
      * @param source - 이동하게 할 파일(디렉토리) 경로 (파일명, 폴더명 포함)
      * @param destinationPath - 이동할 경로 (파일명 포함 x)
      * @return 성공여부
@@ -134,8 +137,8 @@ public class LocalStorageService implements StorageService {
 
     /**
      * 폴더 내 하위 파일 및 폴더 모두 삭제
-     * @param path
-     * @throws IOException
+     * @param path 초기에 삭제 경로의 가장 최상위 경로를 입력한다.
+     * @throws IOException 파일 삭제하는 과정에서 발생하는 에러
      */
     private void deleteFolder(Path path) throws IOException{
         // 디렉토리 하위 파일 개수 구하기
@@ -148,13 +151,11 @@ public class LocalStorageService implements StorageService {
         }
 
         // 하위 파일이 많으면 재귀적으로(DFS) 삭제
-        if (subFileCount > 0) {
-            for (Path subPath : Files.list(path).toList()) {
-                if (Files.isDirectory(subPath)) {
-                    deleteFolder(subPath);
-                } else{
-                    Files.delete(subPath);
-                }
+        for (Path subPath : Files.list(path).toList()) {
+            if (Files.isDirectory(subPath)) {
+                deleteFolder(subPath);
+            } else{
+                Files.delete(subPath);
             }
         }
         Files.delete(path);
