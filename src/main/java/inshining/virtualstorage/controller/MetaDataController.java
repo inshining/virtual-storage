@@ -1,6 +1,7 @@
 package inshining.virtualstorage.controller;
 
 import inshining.virtualstorage.dto.FileDownloadDTO;
+import inshining.virtualstorage.dto.MoveRequest;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +65,19 @@ public class MetaDataController {
                 .contentLength(fileDownload.size())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileDownload.filename())
                 .body(resource);
+    }
+
+    @PostMapping("/move")
+    public ResponseEntity<String> move(@RequestBody MoveRequest moveRequest) {
+        String username = moveRequest.user();
+        String srcPath = moveRequest.srcPath();
+        String destPath = moveRequest.destPath();
+
+        SuccessResponse response = fileService.moveFile(username, srcPath, destPath);
+        if (response.isSuccess()){
+            return ResponseEntity.ok(response.message());
+        } else {
+            return ResponseEntity.badRequest().body(response.message());
+        }
     }
 }

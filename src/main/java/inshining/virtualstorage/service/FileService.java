@@ -14,27 +14,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class FileService {
     private final FileMetaDataService fileMetaDataService;
     private final StorageService storageService;
 
-    @Transactional
     public SuccessResponse uploadFile(MultipartFile file, String username) throws IOException {
 
-        FileMetaData metaData = initFileMetaData(file, username);
+        FileMetaData metaData = new FileMetaData(file, username);
 
-        boolean isWriteFile = storageService.uploadFile(metaData.getStoragePath(), file);
+        Path writePath = Paths.get(metaData.getUsername(), metaData.getOriginalFilename());
+
+        boolean isWriteFile = storageService.uploadFile(writePath.toString(), file);
 
         if (!isWriteFile){
             return new SuccessResponse(false, "Failed to upload file: File is not written");
         }
 
         // Save metadata to database
-        fileMetaDataService.save(metaData);
+        fileMetaDataService.createFile(metaData);
 
 
         return new SuccessResponse(true, "File uploaded successfully");
@@ -85,12 +88,34 @@ public class FileService {
     }
 
 
-    private FileMetaData initFileMetaData(MultipartFile file, String username){
-        UUID uuid1 = UUID.randomUUID();
-        String contentType = file.getContentType();
-        String originalFilename = file.getOriginalFilename();
-        long size = file.getSize();
-        return new FileMetaData(uuid1, username, contentType, originalFilename, size);
-    }
+    /**
+     * Move file to new folder
+     * @param username : 사용자 이름 (파일 소유자)
+     * @param srcFileName : 파일 이름 (옮기려는 파일 이름)
+     * @param destFolderName : 새로운 폴더 이름 (옮기고자 하는 파일 이름)
+     * @return 파일이 정상적으로 옮겨지면 SuccessResponse true를 리턴한다.
+     */
+    public SuccessResponse moveFile(String username, String srcFileName, String destFolderName) {
+        Path destPath = Paths.get(destFolderName);
 
+        // Move file in virtual storage (DB)
+        boolean isMoved = fileMetaDataService.moveFile(username, srcFileName, destPath);
+
+        if (!isMoved) {
+            throw new NullPointerException("Failed to move file: MetaData not found");
+        }
+
+        // Move file in real storage
+        String temp = "upload";
+        Path realSrcPath = Paths.get(temp, username, srcFileName);
+        Path realDestPath = Paths.get(temp, username, destFolderName);
+
+        boolean isStorageMove = storageService.move(username, realSrcPath, realDestPath);
+
+        if (!isStorageMove) {
+            throw new NullPointerException("Failed to move file: File not found");
+        }
+
+        return new SuccessResponse(true, "File moved successfully");
+    }
 }

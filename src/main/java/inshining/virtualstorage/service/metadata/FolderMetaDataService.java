@@ -11,6 +11,8 @@ import inshining.virtualstorage.repository.MetaDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,14 +27,21 @@ public class FolderMetaDataService {
         String[] path = folderPath.split("/");
         String folderName = path[path.length - 1];
         String parentPath = folderPath.substring(0, folderPath.length() - folderName.length());
-        if (parentPath.length() == 0) {
-            parentPath = "/";
-        }
         if (metaDataRepository.existsByOriginalFilenameAndUsernameInFolders(folderName, user)) {
             throw new DuplicateFileNameException();
         }
         UUID uuid = UUID.randomUUID();
-        MetaData folder = new FolderMetaData(uuid, user, folderName);
+
+        FolderMetaData parentFolder;
+        MetaData folder;
+        if (parentPath.length() != 0) {
+            parentFolder = metaDataRepository.findFolderByPathAndUsername(parentPath, user);
+            folder = new FolderMetaData(uuid, user, folderName, parentPath, parentFolder);
+        } else{
+            parentPath = "/";
+            folder = new FolderMetaData(uuid, user, folderName, parentPath, null);
+        }
+
         metaDataRepository.save(folder);
         return new FolderCreateResponse(user, folderName, parentPath);
     }
@@ -56,5 +65,92 @@ public class FolderMetaDataService {
         metaData.setOriginalFilename(changedName);
         MetaData changedMetaData = metaDataRepository.save(metaData);
         return new FolderCreateResponse(changedMetaData.getUsername(), changedMetaData.getOriginalFilename(), changedMetaData.getPath());
+    }
+
+    public boolean deleteFolder(String username, String originalName) {
+        MetaData metaData = metaDataRepository.findByOriginalFilenameAndUsername(originalName, username);
+        if (metaData == null) {
+            return false;
+        }
+        // 탈출 조건: Folder 타입이 아니면 삭제하지 않음
+        if (!metaData.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+            return false;
+        }
+
+        // 하위 폴더 및 파일 삭제
+        searchSubMetaData(metaData).forEach(data -> metaDataRepository.delete(data));
+        metaDataRepository.delete(metaData);
+        return true;
+    }
+
+    private List<MetaData> searchSubMetaData(MetaData metaData) {
+        List<MetaData> result = new ArrayList<>();
+        List<MetaData> subMetaDataByParent = metaDataRepository.findAllByParent(metaData);
+
+        if (subMetaDataByParent.size() == 0) {
+            return result;
+        }
+
+        for (MetaData data : subMetaDataByParent) {
+            result.add(data);
+            if (data.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+                result.addAll(searchSubMetaData(data));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 폴더 이동
+     * @param sourcePath
+     * @param destPath
+     * @return
+     *
+     */
+    public boolean move(String username, Path sourcePath, Path destPath) {
+        // 메타 데이터 조회
+        FolderMetaData sourceFolder = (FolderMetaData) metaDataRepository.findByOriginalFilenameAndUsername(sourcePath.getFileName().toString(), username);
+        FolderMetaData destFolder = (FolderMetaData) metaDataRepository.findByOriginalFilenameAndUsername(destPath.getFileName().toString(), username);
+
+        // 폴더가 존재하지 않을 경우
+        if (sourceFolder == null || destFolder == null) {
+            return false;
+        }
+
+        // 폴더 이동
+        sourceFolder.setParent(destFolder);
+        sourceFolder.setPath(destPath.toString());
+
+        moveSubMetaData(sourceFolder);
+
+        metaDataRepository.save(sourceFolder);
+
+        return true;
+    }
+
+    /**
+     * 폴더 이동 시 하위 메타 데이터 이동
+     * DFS 방식으로 구현
+     * 재귀적으로 하위 파일이 있으면 이동하여서 설정 변경
+     * @param folderMetaData
+     */
+    private void moveSubMetaData(FolderMetaData folderMetaData) {
+        List<MetaData> subMetaDataByParent = metaDataRepository.findAllByParent(folderMetaData);
+
+        if (subMetaDataByParent.size() == 0) {
+            return;
+        }
+
+        Path parentPath = Paths.get(folderMetaData.getPath(), folderMetaData.getOriginalFilename());
+
+        for (MetaData data : subMetaDataByParent) {
+            data.setParent(folderMetaData);
+            data.setPath(parentPath.toString());
+            metaDataRepository.save(data);
+            if (data.getContentType().equals(FolderMetaData.CONTENT_TYPE)) {
+                FolderMetaData folder = (FolderMetaData) data;
+                moveSubMetaData(folder);
+            }
+        }
     }
 }

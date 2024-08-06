@@ -22,6 +22,15 @@ public class FolderMetaData extends MetaData{
             this.contentType = CONTENT_TYPE;
         }
 
+        public FolderMetaData(UUID uuid, String username, String originalFilename, String path, FolderMetaData parent) {
+            this.id = uuid;
+            this.username = username;
+            this.originalFilename = originalFilename;
+            this.contentType = CONTENT_TYPE;
+            this.path = path;
+            this.parent = parent;
+        }
+
         public String getStoragePath() {
             return this.id.toString() + "-" + this.originalFilename;
         }
