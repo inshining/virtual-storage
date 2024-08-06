@@ -1,9 +1,13 @@
 package inshining.virtualstorage.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import inshining.virtualstorage.controller.MetaDataController;
 import inshining.virtualstorage.dto.FileDownloadDTO;
+import inshining.virtualstorage.dto.FolderRequestBody;
+import inshining.virtualstorage.dto.MoveRequest;
 import inshining.virtualstorage.dto.SuccessResponse;
 import inshining.virtualstorage.service.FileService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,6 +37,8 @@ public class FileMetaDataControllerTest {
     @MockBean
     private FileService fileService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     public void testUpload() throws Exception{
@@ -151,5 +157,43 @@ public class FileMetaDataControllerTest {
     void testDownloadFailNoFileNameAndUsername() throws Exception{
         mockMvc.perform(MockMvcRequestBuilders.get("/file/download"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("성공: 파일 이동")
+    @Test
+    void testMoveFileSuccess() throws Exception {
+        String user = "user";
+        String srcPath = "hello.txt";
+        String destPath = "test/folder";
+
+        when(fileService.moveFile(user, srcPath, destPath))
+                .thenReturn(new SuccessResponse(true, "File moved successfully"));
+
+        String content = objectMapper.writeValueAsString(new MoveRequest(user, srcPath, destPath));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/file/move")
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("File moved successfully"));
+    }
+
+    @DisplayName("실패: 파일 이동")
+    @Test
+    void testMoveFileFail() throws Exception {
+        String user = "user";
+        String srcPath = "hello.txt";
+        String destPath = "test/folder";
+
+        when(fileService.moveFile(user, srcPath, destPath))
+                .thenReturn(new SuccessResponse(false, "File moved failed"));
+
+        String content = objectMapper.writeValueAsString(new MoveRequest(user, srcPath, destPath));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/file/move")
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("File moved failed"));
     }
 }

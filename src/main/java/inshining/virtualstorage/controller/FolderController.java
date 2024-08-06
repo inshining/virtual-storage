@@ -1,6 +1,7 @@
 package inshining.virtualstorage.controller;
 
 import inshining.virtualstorage.dto.FolderRenameRequest;
+import inshining.virtualstorage.dto.MoveRequest;
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderRequestBody;
 import inshining.virtualstorage.dto.FolderCreateResponse;
@@ -59,6 +60,20 @@ public class FolderController {
         boolean isSuccess = folderService.deleteFolder(user, folderName);
         if (isSuccess){
             return ResponseEntity.ok("Folder deleted");
+        } else{
+            return ResponseEntity.badRequest().body("Folder not found");
+        }
+    }
+
+    @PutMapping("/move")
+    public ResponseEntity<String> move(@RequestBody MoveRequest request) {
+        String user = request.user();
+        String srcPath = request.srcPath();
+        String destPath = request.destPath();
+
+        boolean isSuccess = folderService.move(user, srcPath, destPath);
+        if (isSuccess){
+            return ResponseEntity.ok("Folder moved");
         } else{
             return ResponseEntity.badRequest().body("Folder not found");
         }

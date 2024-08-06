@@ -200,4 +200,31 @@ public class FolderServiceTest {
         Assertions.assertTrue(Files.exists(destPath));
     }
 
+    @DisplayName("성공: 하위 여러 폴더 이동하기")
+    @Test
+    void moveSubFoldersTest(){
+        // given
+        folderService.createFolder(USERNAME, FOLDER_NAME);
+        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
+
+        String destFolderName = "destFolder";
+        folderService.createFolder(USERNAME, destFolderName);
+        Path destPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME, destFolderName);
+
+        String subFolderName = "subFolder";
+        folderService.createFolder(USERNAME, FOLDER_NAME + "/" + subFolderName);
+        Path subPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME, subFolderName);
+
+        // when
+        boolean result = folderService.move(USERNAME, FOLDER_NAME, destFolderName);
+
+        // then
+        Assertions.assertTrue(result);
+        Assertions.assertFalse(Files.exists(path));
+        Assertions.assertTrue(Files.exists(destPath));
+
+        Path expectedDestPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME, destFolderName, FOLDER_NAME, subFolderName);
+        Assertions.assertTrue(Files.exists(expectedDestPath));
+    }
+
 }

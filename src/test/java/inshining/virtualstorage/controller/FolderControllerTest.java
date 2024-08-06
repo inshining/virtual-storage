@@ -2,6 +2,7 @@ package inshining.virtualstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inshining.virtualstorage.dto.FolderRenameRequest;
+import inshining.virtualstorage.dto.MoveRequest;
 import inshining.virtualstorage.exception.DuplicateFileNameException;
 import inshining.virtualstorage.dto.FolderRequestBody;
 import inshining.virtualstorage.dto.FolderCreateResponse;
@@ -123,6 +124,23 @@ public class FolderControllerTest {
                         .content(content)
                         .contentType("application/json"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("성공: 폴더 이동")
+    @Test
+    void testMoveFolder_Success() throws Exception {
+        String username = "user";
+        String folderName = "/folderName";
+        String targetFolderName = "/targetFolderName";
+
+        String content = objectMapper.writeValueAsString(new MoveRequest(username, folderName, targetFolderName));
+
+        when(folderService.move(username, folderName, targetFolderName)).thenReturn(true);
+
+        mockMvc.perform(put("/folder/move")
+                        .content(content)
+                        .contentType("application/json"))
+                .andExpect(status().isOk());
     }
 
 }
