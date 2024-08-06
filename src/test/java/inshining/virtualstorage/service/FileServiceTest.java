@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Any;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -248,7 +249,7 @@ public class FileServiceTest {
         String newFolder = "newFolder";
 
         when(fileMetaDataService.moveFile(username, filename, Paths.get(newFolder))).thenReturn(true);
-        when(storageService.move(username, Paths.get(username, filename), Paths.get(username, newFolder))).thenReturn(true);
+        when(storageService.move(username, Paths.get("upload", username, filename), Paths.get("upload", username, newFolder) )).thenReturn(true);
 
         SuccessResponse response = fileService.moveFile(username, filename,newFolder);
 
