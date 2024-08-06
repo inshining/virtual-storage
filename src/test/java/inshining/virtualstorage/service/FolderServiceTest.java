@@ -173,4 +173,26 @@ public class FolderServiceTest {
         FileDeletor.delete(path, 2);
     }
 
+    @DisplayName("성공 폴더 이동하기")
+    @Test
+    void moveFolderTest() {
+        // given
+        folderService.createFolder(USERNAME, FOLDER_NAME);
+        Path path = Paths.get(LOCAL_STORAGE_PATH, USERNAME, FOLDER_NAME);
+
+        String destFolderName = "destFolder";
+        folderService.createFolder(USERNAME, destFolderName);
+        Path destPath = Paths.get(LOCAL_STORAGE_PATH, USERNAME, destFolderName);
+
+        // when
+        boolean result = folderService.move(USERNAME, FOLDER_NAME, destFolderName);
+
+        // then
+        Assertions.assertTrue(result);
+        Assertions.assertFalse(Files.exists(path));
+        Assertions.assertTrue(Files.exists(destPath));
+
+        FileDeletor.delete(destPath, 2);
+    }
+
 }

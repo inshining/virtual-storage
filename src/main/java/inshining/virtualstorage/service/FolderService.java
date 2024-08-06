@@ -8,8 +8,13 @@ import inshining.virtualstorage.service.metadata.FolderMetaDataService;
 import inshining.virtualstorage.service.storage.LocalStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class FolderService {
     private final FolderMetaDataService folderMetaDataService;
@@ -54,5 +59,24 @@ public class FolderService {
             folderMetaDataService.deleteFolder(username, folderName);
         }
         return isSuccess;
+    }
+
+    public boolean move(String username, String folderName, String destFolderName) {
+        Path srcPath = Paths.get(folderName);
+        Path destPath = Paths.get(destFolderName);
+        boolean isSuccess = folderMetaDataService.move(username, srcPath, destPath);
+        if (!isSuccess) {
+            throw new NoExistFolderException();
+        }
+        // local storage 저장할 위치 설정 class 따로 분리해서 처리해야 할듯? static class
+        String LOCAL_STORAGE_PATH = "upload/";
+        Path realSrcPath = Paths.get(LOCAL_STORAGE_PATH, username, folderName);
+        Path realDestPath = Paths.get(LOCAL_STORAGE_PATH, username, destFolderName);
+        isSuccess = folderStorageService.move(username, realSrcPath, realDestPath);
+        if (!isSuccess) {
+            throw new NoExistFolderException();
+        }
+        return isSuccess;
+
     }
 }

@@ -14,15 +14,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class FileService {
     private final FileMetaDataService fileMetaDataService;
     private final StorageService storageService;
 
-    @Transactional
     public SuccessResponse uploadFile(MultipartFile file, String username) throws IOException {
 
         FileMetaData metaData = new FileMetaData(file, username);
@@ -85,4 +88,33 @@ public class FileService {
     }
 
 
+    /**
+     * Move file to new folder
+     * @param username : 사용자 이름 (파일 소유자)
+     * @param srcFileName : 파일 이름 (옮기려는 파일 이름)
+     * @param destFolderName : 새로운 폴더 이름 (옮기고자 하는 파일 이름)
+     * @return
+     */
+    public SuccessResponse moveFile(String username, String srcFileName, String destFolderName) {
+        Path destPath = Paths.get(destFolderName);
+
+        // Move file in virtual storage (DB)
+        boolean isMoved = fileMetaDataService.moveFile(username, srcFileName, destPath);
+
+        if (!isMoved) {
+            throw new NullPointerException("Failed to move file: MetaData not found");
+        }
+
+        // Move file in real storage
+        Path realSrcPath = Paths.get(username, srcFileName);
+        Path realDestPath = Paths.get(username, destFolderName);
+
+        boolean isStorageMove = storageService.move(username, realSrcPath, realDestPath);
+
+        if (!isStorageMove) {
+            throw new NullPointerException("Failed to move file: File not found");
+        }
+
+        return new SuccessResponse(true, "File moved successfully");
+    }
 }
